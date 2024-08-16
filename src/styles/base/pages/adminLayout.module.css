@@ -1,0 +1,21 @@
+.adminAppBar {
+  transition:
+    margin 0.3s ease-out,
+    width 0.3s ease-out;
+}
+
+.adminAppBarOpen {
+  width: calc(100% - 240px);
+  margin-left: 240px;
+}
+
+.adminMain {
+  flex-grow: 1;
+  padding: 24px;
+  margin-left: -240px;
+  transition: margin 0.3s ease-out;
+}
+
+.adminMainOpen {
+  margin-left: 0;
+}
