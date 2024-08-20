@@ -16,8 +16,8 @@ import {
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
 import { styled } from "@mui/material/styles";
-import { useRouter } from "next/navigation";
-import React, { useState, useMemo } from "react";
+import { useRouter, usePathname } from "next/navigation";
+import React, { useState, useEffect, useMemo } from "react";
 
 const drawerWidth = 240;
 
@@ -50,10 +50,23 @@ const AppBar = styled(MuiAppBar, {
 
 export default function AdminLayout({ children }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [state, setState] = useState({
     open: false,
     selectedText: "Dashboard",
   });
+
+  useEffect(() => {
+    const pathToText = {
+      "/admin": "Dashboard",
+      "/admin/categories": "Categories",
+      "/admin/clients": "Clients",
+      "/admin/orders": "Orders",
+    };
+
+    const currentText = pathToText[pathname] || "Dashboard";
+    setState((prevState) => ({ ...prevState, selectedText: currentText }));
+  }, [pathname]);
 
   const menuIcons = useMemo(
     () => [
