@@ -1,7 +1,10 @@
 .adminAppBar {
-  transition:
-    margin 0.3s ease-out,
-    width 0.3s ease-out;
+  transition: all 0.3s ease-in-out;
+}
+
+.adminAppBarOpen {
+  width: calc(100% - 240px);
+  margin-left: 240px;
 }
 
 .adminAppBarOpen {
@@ -21,7 +24,7 @@
 }
 
 .selectedMenuItem {
-  background-color: #e0e0e0;
+  background-color: #333;
   font-weight: bold;
-  color: #1976d2;
+  color: #ffffff;
 }
