@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import MuiAppBar from "@mui/material/AppBar";
 import { styled } from "@mui/material/styles";
+import { useRouter } from "next/navigation";
 import React, { useState, useMemo } from "react";
 
 const drawerWidth = 240;
@@ -26,6 +27,7 @@ const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
       flexGrow: 1,
       padding: "24px",
       marginLeft: "-240px",
+      marginTop: "64px",
       transition: "margin 0.3s ease-out",
     },
     ...(open && {
@@ -47,6 +49,7 @@ const AppBar = styled(MuiAppBar, {
 }));
 
 export default function AdminLayout({ children }) {
+  const router = useRouter();
   const [state, setState] = useState({
     open: false,
     selectedText: "Dashboard",
@@ -77,6 +80,22 @@ export default function AdminLayout({ children }) {
 
   const handleMenuItemClick = (text) => {
     setState((prevState) => ({ ...prevState, selectedText: text }));
+    switch (text) {
+      case "Dashboard":
+        router.push("/admin");
+        break;
+      case "Categories":
+        router.push("/admin/categories");
+        break;
+      case "Clients":
+        router.push("/admin/clients");
+        break;
+      case "Orders":
+        router.push("/admin/orders");
+        break;
+      default:
+        break;
+    }
   };
 
   return (
@@ -104,9 +123,9 @@ export default function AdminLayout({ children }) {
         menuItems={menuItems}
         menuIcons={menuIcons}
         onMenuItemClick={handleMenuItemClick}
+        selectedText={state.selectedText}
       />
       <Main open={state.open}>
-        <SideDrawer />
         <div style={{ paddingTop: "20px" }}>{children}</div>
       </Main>
     </Box>

@@ -30,6 +30,7 @@ export default function SideDrawer({
   menuItems = [],
   menuIcons = [],
   onMenuItemClick,
+  selectedText,
 }) {
   const theme = useTheme();
 
@@ -61,7 +62,10 @@ export default function SideDrawer({
       <List>
         {menuItems.map((text, index) => (
           <ListItem key={text} disablePadding>
-            <ListItemButton onClick={() => onMenuItemClick(text)}>
+            <ListItemButton
+              className={text === selectedText ? styles.selectedMenuItem : ""}
+              onClick={() => onMenuItemClick(text)}
+            >
               <ListItemIcon>{menuIcons[index]}</ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
