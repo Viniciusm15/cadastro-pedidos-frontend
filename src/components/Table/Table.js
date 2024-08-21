@@ -6,10 +6,21 @@ import {
   TableHead,
   TableRow,
   IconButton,
+  TableFooter,
+  TablePagination,
 } from "@mui/material";
 import React from "react";
 
-export default function GenericTable({ headers, data, actions }) {
+export default function GenericTable({
+  headers,
+  data,
+  actions,
+  page,
+  pageSize,
+  totalCount,
+  onPageChange,
+  onPageSizeChange,
+}) {
   return (
     <Table className={styles.table}>
       <TableHead>
@@ -19,7 +30,7 @@ export default function GenericTable({ headers, data, actions }) {
               {header}
             </TableCell>
           ))}
-          {actions && <TableCell className={styles.tableCell}>Ações</TableCell>}
+          {actions && <TableCell className={styles.tableCell}>actions</TableCell>}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -45,6 +56,25 @@ export default function GenericTable({ headers, data, actions }) {
           </TableRow>
         ))}
       </TableBody>
+      <TableFooter>
+        <TableRow>
+          <TablePagination
+            className={styles.tablePagination}
+            count={totalCount}
+            page={page - 1}
+            onPageChange={(event, newPage) => onPageChange(newPage + 1)}
+            rowsPerPage={pageSize}
+            onRowsPerPageChange={(event) =>
+              onPageSizeChange(parseInt(event.target.value, 10))
+            }
+            sx={{
+              ".MuiTablePagination-selectIcon": {
+                color: "#ffffff",
+              },
+            }}
+          />
+        </TableRow>
+      </TableFooter>
     </Table>
   );
 }

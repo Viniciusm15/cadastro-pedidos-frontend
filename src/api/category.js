@@ -2,10 +2,14 @@ import axios from "axios";
 
 const apiUrl = process.env.NEXT_PUBLIC_BACK_END_URL;
 
-export const fetchCategories = async () => {
+export const fetchCategories = async (pageNumber = 1, pageSize = 10) => {
   try {
-    const response = await axios.get(`${apiUrl}/api/Category`);
-    return response.data;
+    const response = await axios.get(`${apiUrl}/api/Category`, {
+      params: { pageNumber, pageSize },
+    });
+    
+    const { items, totalCount } = response.data;
+    return { data: items, totalCount };
   } catch (error) {
     throw error;
   }
