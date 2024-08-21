@@ -1,0 +1,12 @@
+.table {
+  margin-top: 20px;
+}
+
+.tableCell {
+  color: #ffffff;
+}
+
+.actionsCell {
+  display: flex;
+  gap: 8px;
+}

@@ -1,0 +1,14 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.formField {
+  color: #ffffff;
+  background-color: #333333;
+}
+
+.submitButton {
+  margin-top: 10px;
+}
