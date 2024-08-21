@@ -16,6 +16,9 @@ import React, { useState, useEffect } from "react";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
   const [formState, setFormState] = useState({
     name: "",
     description: "",
@@ -24,13 +27,14 @@ export default function CategoryManagement() {
   });
 
   useEffect(() => {
-    loadCategories();
-  }, []);
+    loadCategories(pageNumber, pageSize);
+  }, [pageNumber, pageSize]);
 
-  const loadCategories = async () => {
-    const data = await fetchCategories();
+  const loadCategories = async (pageNumber, pageSize) => {
+    const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
     setCategories(data);
-  };
+    setTotalCount(totalCount);
+};
 
   const handleInputChange = (e) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
@@ -49,7 +53,7 @@ export default function CategoryManagement() {
         description: formState.description,
       });
     }
-    loadCategories();
+    loadCategories(pageNumber, pageSize);
     setFormState({ name: "", description: "", id: null, isEditing: false });
   };
 
@@ -64,7 +68,7 @@ export default function CategoryManagement() {
 
   const handleDelete = async (id) => {
     await deleteCategory(id);
-    loadCategories();
+    loadCategories(pageNumber, pageSize);
   };
 
   return (
@@ -89,6 +93,14 @@ export default function CategoryManagement() {
             onClick: handleDelete,
           },
         ]}
+        page={pageNumber}
+        pageSize={pageSize}
+        totalCount={totalCount}
+        onPageChange={setPageNumber}
+        onPageSizeChange={(newSize) => {
+          setPageSize(newSize);
+          setPageNumber(1);
+        }}
       />
     </Box>
   );
