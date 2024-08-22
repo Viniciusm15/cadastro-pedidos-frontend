@@ -4,11 +4,10 @@
 
 .tableCell {
   color: #ffffff;
-}
-
-.actionsCell {
-  display: flex;
-  gap: 8px;
+  min-width: 120px;
+  vertical-align: middle;
+  word-break: break-word;
+  white-space: nowrap;
 }
 
 .tablePagination {

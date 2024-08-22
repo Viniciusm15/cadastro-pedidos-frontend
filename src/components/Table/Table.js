@@ -30,7 +30,9 @@ export default function GenericTable({
               {header}
             </TableCell>
           ))}
-          {actions && <TableCell className={styles.tableCell}>actions</TableCell>}
+          {actions && (
+            <TableCell className={styles.tableCell}>actions</TableCell>
+          )}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -42,7 +44,7 @@ export default function GenericTable({
               </TableCell>
             ))}
             {actions && (
-              <TableCell className={styles.actionsCell}>
+              <TableCell>
                 {actions.map((action, actionIndex) => (
                   <IconButton
                     key={actionIndex}
