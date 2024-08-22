@@ -6,12 +6,11 @@ import {
   updateCategory,
   deleteCategory,
 } from "../../../api/category";
+import Box from "../../../components/Box/Box";
 import GenericForm from "../../../components/Form/Form";
 import GenericTable from "../../../components/Table/Table";
-import styles from "../../../styles/base/pages/categoryManagement.module.css";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
-import { Box } from "@mui/material";
 import React, { useState, useEffect } from "react";
 
 export default function CategoryManagement() {
@@ -34,7 +33,7 @@ export default function CategoryManagement() {
     const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
     setCategories(data);
     setTotalCount(totalCount);
-};
+  };
 
   const handleInputChange = (e) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
@@ -72,14 +71,19 @@ export default function CategoryManagement() {
   };
 
   return (
-    <Box className={styles.container}>
+    <Box>
       <GenericForm
         formState={formState}
         handleInputChange={handleInputChange}
         handleSubmit={handleSubmit}
         fields={[
           { name: "name", label: "Category Name" },
-          { name: "description", label: "Description", multiline: true, rows: 4 },
+          {
+            name: "description",
+            label: "Description",
+            multiline: true,
+            rows: 4,
+          },
         ]}
         submitLabel={formState.isEditing ? "Update" : "Register"}
       />
