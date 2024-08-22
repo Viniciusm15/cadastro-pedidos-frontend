@@ -9,17 +9,22 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@emotion/react": "^11.13.0",
+    "@emotion/react": "^11.13.3",
     "@emotion/styled": "^11.13.0",
     "@mui/icons-material": "^5.16.7",
     "@mui/joy": "^5.0.0-beta.48",
     "@mui/material": "^5.16.7",
+    "@mui/styled-engine-sc": "^6.0.0-alpha.18",
+    "@mui/x-date-pickers": "^7.13.0",
     "axios": "^1.7.4",
+    "date-fns": "^3.6.0",
+    "dayjs": "^1.11.13",
     "material-ui-popup-state": "^5.1.2",
     "next": "14.2.5",
     "prettier-plugin-sort-imports": "^1.8.6",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "styled-components": "^6.1.12"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
