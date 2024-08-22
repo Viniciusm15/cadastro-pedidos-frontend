@@ -15,6 +15,15 @@ export const fetchCategories = async (pageNumber = 1, pageSize = 10) => {
   }
 };
 
+export const getCategoryById = async (id) => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/Category/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export const createCategory = async (data) => {
   try {
     await axios.post(`${apiUrl}/api/Category`, data);
