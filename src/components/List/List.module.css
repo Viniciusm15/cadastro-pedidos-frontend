@@ -1,0 +1,21 @@
+.emptyBox {
+  padding: 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 40px;
+}
+
+.emptyIcon {
+  font-size: 48px;
+  color: #757575;
+  margin-bottom: 16px;
+}
+
+.emptyMessage {
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: 500;
+}
