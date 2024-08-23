@@ -8,18 +8,22 @@ import {
 } from "../../../api/client";
 import Box from "../../../components/Box/Box";
 import GenericForm from "../../../components/Form/Form";
+import GenericList from "../../../components/List/List";
+import GenericModal from "../../../components/Modal/Modal";
 import GenericTable from "../../../components/Table/Table";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import VisibilityIcon from "@mui/icons-material/Visibility";
+import styles from "../../../styles/base/pages/clientManagement.module.css";
+import { Delete, Edit, Visibility } from "@mui/icons-material";
+import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import React, { useState, useEffect } from "react";
 
 export default function ClientManagement() {
   const [clients, setClients] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
+  const [pagination, setPagination] = useState({
+    pageNumber: 1,
+    pageSize: 10,
+    totalCount: 0,
+  });
   const [formState, setFormState] = useState({
     name: "",
     email: "",
@@ -28,56 +32,43 @@ export default function ClientManagement() {
     id: null,
     isEditing: false,
   });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
-    loadClients(pageNumber, pageSize);
-  }, [pageNumber, pageSize]);
+    const loadClients = async () => {
+      const { data, totalCount } = await fetchClients(
+        pagination.pageNumber,
+        pagination.pageSize,
+      );
+      setClients(data);
+      setPagination((prev) => ({ ...prev, totalCount }));
+    };
+    loadClients();
+  }, [pagination.pageNumber, pagination.pageSize]);
 
-  const loadClients = async (pageNumber, pageSize) => {
-    const { data, totalCount } = await fetchClients(pageNumber, pageSize);
-    setClients(data);
-    setTotalCount(totalCount);
-  };
-
-  const handleInputChange = (e) => {
+  const handleInputChange = (e) =>
     setFormState({ ...formState, [e.target.name]: e.target.value });
-  };
 
-  function handleDateChange(fieldName, date) {
-    const newDate = dayjs(date);
-    setFormState((prevState) => ({
-      ...prevState,
-      [fieldName]: newDate,
-    }));
-  }
+  const handleDateChange = (fieldName, date) => {
+    setFormState((prevState) => ({ ...prevState, [fieldName]: dayjs(date) }));
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const formattedDate = formState.birthDate
-      ? formState.birthDate.format("YYYY-MM-DD")
-      : null;
+    const formattedDate = formState.birthDate?.format("YYYY-MM-DD");
+    const clientData = { ...formState, birthDate: formattedDate };
 
-    if (formState.isEditing) {
-      await updateClient(formState.id, {
-        name: formState.name,
-        email: formState.email,
-        telephone: formState.telephone,
-        birthDate: formattedDate,
-      });
-    } else {
-      await createClient({
-        name: formState.name,
-        email: formState.email,
-        telephone: formState.telephone,
-        birthDate: formattedDate,
-      });
-    }
-    loadClients(pageNumber, pageSize);
+    formState.isEditing
+      ? await updateClient(formState.id, clientData)
+      : await createClient(clientData);
+
+    setPagination((prev) => ({ ...prev, pageNumber: 1 }));
     setFormState({
       name: "",
       email: "",
       telephone: "",
-      birthDate: null,
+      birthDate: dayjs(),
       id: null,
       isEditing: false,
     });
@@ -96,12 +87,17 @@ export default function ClientManagement() {
 
   const handleDelete = async (id) => {
     await deleteClient(id);
-    loadClients(pageNumber, pageSize);
+    setPagination((prev) => ({ ...prev, pageNumber: 1 }));
   };
 
   const handleViewPurchaseHistory = (client) => {
-    console.log("Histórico de compras do cliente:", client);
-    // Implementar a lógica para exibir os detalhes, como um modal.
+    setSelectedClient(client);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedClient(null);
   };
 
   return (
@@ -124,24 +120,54 @@ export default function ClientManagement() {
         data={clients}
         actions={[
           {
-            icon: <VisibilityIcon sx={{ color: "#ffffff" }} />,
+            icon: <Visibility className={styles.whiteIcon} />,
             onClick: handleViewPurchaseHistory,
           },
-          { icon: <EditIcon sx={{ color: "#ffffff" }} />, onClick: handleEdit },
+          { icon: <Edit className={styles.whiteIcon} />, onClick: handleEdit },
           {
-            icon: <DeleteIcon sx={{ color: "#ffffff" }} />,
+            icon: <Delete className={styles.whiteIcon} />,
             onClick: handleDelete,
           },
         ]}
-        page={pageNumber}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPageNumber}
-        onPageSizeChange={(newSize) => {
-          setPageSize(newSize);
-          setPageNumber(1);
-        }}
+        page={pagination.pageNumber}
+        pageSize={pagination.pageSize}
+        totalCount={pagination.totalCount}
+        onPageChange={(newPage) =>
+          setPagination((prev) => ({ ...prev, pageNumber: newPage }))
+        }
+        onPageSizeChange={(newSize) =>
+          setPagination({ pageSize: newSize, pageNumber: 1 })
+        }
       />
+      {selectedClient && (
+        <GenericModal
+          open={isModalOpen}
+          handleClose={handleCloseModal}
+          title="Purchase History"
+        >
+          <Typography>Nome: {selectedClient.name}</Typography>
+          <Typography>Email: {selectedClient.email}</Typography>
+          <GenericList
+            items={selectedClient.purchaseHistory}
+            primaryText={(purchase) => `Order ID: ${purchase.orderId}`}
+            secondaryText={(purchase) => (
+              <React.Fragment>
+                <Typography className={styles.purchaseDate}>
+                  Order Date: {dayjs(purchase.orderDate).format("MM/DD/YYYY")}
+                </Typography>
+                <Typography className={styles.totalValue}>
+                  Total Value:{" "}
+                  {purchase.totalValue.toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
+                </Typography>
+              </React.Fragment>
+            )}
+            emptyMessage="No purchase history available"
+          />
+        </GenericModal>
+      )}
     </Box>
   );
 }
