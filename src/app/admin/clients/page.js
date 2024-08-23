@@ -152,10 +152,10 @@ export default function ClientManagement() {
             primaryText={(purchase) => `Order ID: ${purchase.orderId}`}
             secondaryText={(purchase) => (
               <React.Fragment>
-                <Typography className={styles.purchaseDate}>
+                <Typography component="span" className={styles.purchaseDate}>
                   Order Date: {dayjs(purchase.orderDate).format("MM/DD/YYYY")}
                 </Typography>
-                <Typography className={styles.totalValue}>
+                <Typography component="span" className={styles.totalValue}>
                   Total Value:{" "}
                   {purchase.totalValue.toLocaleString("en-US", {
                     style: "currency",
