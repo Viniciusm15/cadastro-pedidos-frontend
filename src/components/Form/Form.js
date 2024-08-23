@@ -23,7 +23,7 @@ export default function GenericForm({
               label={field.label}
               value={formState[field.name]}
               onChange={(date) => handleDateChange(field.name, date)}
-              renderInput={(params) => (
+              textField={(params) => (
                 <TextField
                   {...params}
                   fullWidth
