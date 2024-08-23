@@ -8,8 +8,6 @@ export const fetchClients = async (pageNumber = 1, pageSize = 10) => {
       params: { pageNumber, pageSize },
     });
     
-    console.log(response.data)
-
     const { items, totalCount } = response.data;
     return { data: items, totalCount };
   } catch (error) {

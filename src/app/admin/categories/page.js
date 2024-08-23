@@ -9,9 +9,9 @@ import {
 import Box from "../../../components/Box/Box";
 import GenericForm from "../../../components/Form/Form";
 import GenericTable from "../../../components/Table/Table";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import React, { useState, useEffect } from "react";
+import styles from "../../../styles/base/pages/categoryManagement.module.css";
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
+import { useState, useEffect } from "react";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
@@ -26,55 +26,43 @@ export default function CategoryManagement() {
   });
 
   useEffect(() => {
-    loadCategories(pageNumber, pageSize);
+    const loadCategories = async () => {
+      const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
+      setCategories(data);
+      setTotalCount(totalCount);
+    };
+    loadCategories();
   }, [pageNumber, pageSize]);
 
-  const loadCategories = async (pageNumber, pageSize) => {
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const action = formState.isEditing ? updateCategory : createCategory;
+    await action(formState.id, {
+      name: formState.name,
+      description: formState.description,
+    });
+    setFormState({ name: "", description: "", id: null, isEditing: false });
     const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
     setCategories(data);
     setTotalCount(totalCount);
   };
 
-  const handleInputChange = (e) => {
-    setFormState({ ...formState, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (formState.isEditing) {
-      await updateCategory(formState.id, {
-        name: formState.name,
-        description: formState.description,
-      });
-    } else {
-      await createCategory({
-        name: formState.name,
-        description: formState.description,
-      });
-    }
-    loadCategories(pageNumber, pageSize);
-    setFormState({ name: "", description: "", id: null, isEditing: false });
-  };
-
-  const handleEdit = (category) => {
-    setFormState({
-      name: category.name,
-      description: category.description,
-      id: category.categoryId,
-      isEditing: true,
-    });
-  };
-
+  const handleEdit = (category) =>
+    setFormState({ ...category, id: category.categoryId, isEditing: true });
   const handleDelete = async (id) => {
     await deleteCategory(id);
-    loadCategories(pageNumber, pageSize);
+    const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
+    setCategories(data);
+    setTotalCount(totalCount);
   };
 
   return (
     <Box>
       <GenericForm
         formState={formState}
-        handleInputChange={handleInputChange}
+        handleInputChange={(e) =>
+          setFormState({ ...formState, [e.target.name]: e.target.value })
+        }
         handleSubmit={handleSubmit}
         fields={[
           { name: "name", label: "Category Name" },
@@ -91,9 +79,12 @@ export default function CategoryManagement() {
         headers={["name", "description", "productCount"]}
         data={categories}
         actions={[
-          { icon: <EditIcon sx={{ color: "#ffffff" }} />, onClick: handleEdit },
           {
-            icon: <DeleteIcon sx={{ color: "#ffffff" }} />,
+            icon: <EditIcon className={styles.whiteIcon} />,
+            onClick: handleEdit,
+          },
+          {
+            icon: <DeleteIcon className={styles.whiteIcon} />,
             onClick: handleDelete,
           },
         ]}
@@ -101,10 +92,7 @@ export default function CategoryManagement() {
         pageSize={pageSize}
         totalCount={totalCount}
         onPageChange={setPageNumber}
-        onPageSizeChange={(newSize) => {
-          setPageSize(newSize);
-          setPageNumber(1);
-        }}
+        onPageSizeChange={(newSize) => setPageSize(newSize)}
       />
     </Box>
   );

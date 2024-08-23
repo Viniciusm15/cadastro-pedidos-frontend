@@ -23,29 +23,20 @@ const drawerWidth = 240;
 
 const Main = styled("main", { shouldForwardProp: (prop) => prop !== "open" })(
   ({ open }) => ({
-    ...{
-      flexGrow: 1,
-      padding: "24px",
-      marginLeft: "-240px",
-      marginTop: "64px",
-      transition: "margin 0.3s ease-out",
-    },
-    ...(open && {
-      marginLeft: 0,
-    }),
+    flexGrow: 1,
+    padding: "24px",
+    marginLeft: open ? 0 : `-${drawerWidth}px`,
+    marginTop: "64px",
+    transition: "margin 0.3s ease-out",
   }),
 );
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
 })(({ open }) => ({
-  ...{
-    transition: "margin 0.3s ease-out, width 0.3s ease-out",
-  },
-  ...(open && {
-    width: `calc(100% - ${drawerWidth}px)`,
-    marginLeft: `${drawerWidth}px`,
-  }),
+  transition: "margin 0.3s ease-out, width 0.3s ease-out",
+  width: open ? `calc(100% - ${drawerWidth}px)` : "100%",
+  marginLeft: open ? `${drawerWidth}px` : 0,
 }));
 
 export default function AdminLayout({ children }) {
@@ -63,10 +54,16 @@ export default function AdminLayout({ children }) {
       "/admin/clients": "Clients",
       "/admin/orders": "Orders",
     };
-
-    const currentText = pathToText[pathname] || "Dashboard";
-    setState((prevState) => ({ ...prevState, selectedText: currentText }));
+    setState((prevState) => ({
+      ...prevState,
+      selectedText: pathToText[pathname] || "Dashboard",
+    }));
   }, [pathname]);
+
+  const menuItems = useMemo(
+    () => ["Dashboard", "Categories", "Clients", "Orders"],
+    [],
+  );
 
   const menuIcons = useMemo(
     () => [
@@ -78,37 +75,9 @@ export default function AdminLayout({ children }) {
     [],
   );
 
-  const menuItems = useMemo(
-    () => ["Dashboard", "Categories", "Clients", "Orders"],
-    [],
-  );
-
-  const handleDrawerOpen = () => {
-    setState((prevState) => ({ ...prevState, open: true }));
-  };
-
-  const handleDrawerClose = () => {
-    setState((prevState) => ({ ...prevState, open: false }));
-  };
-
   const handleMenuItemClick = (text) => {
     setState((prevState) => ({ ...prevState, selectedText: text }));
-    switch (text) {
-      case "Dashboard":
-        router.push("/admin");
-        break;
-      case "Categories":
-        router.push("/admin/categories");
-        break;
-      case "Clients":
-        router.push("/admin/clients");
-        break;
-      case "Orders":
-        router.push("/admin/orders");
-        break;
-      default:
-        break;
-    }
+    router.push(`/admin/${text.toLowerCase()}`);
   };
 
   return (
@@ -119,7 +88,9 @@ export default function AdminLayout({ children }) {
           <IconButton
             color="inherit"
             aria-label="open drawer"
-            onClick={handleDrawerOpen}
+            onClick={() =>
+              setState((prevState) => ({ ...prevState, open: true }))
+            }
             edge="start"
             sx={{ mr: 2, ...(state.open && { display: "none" }) }}
           >
@@ -132,7 +103,9 @@ export default function AdminLayout({ children }) {
       </AppBar>
       <SideDrawer
         open={state.open}
-        handleDrawerClose={handleDrawerClose}
+        handleDrawerClose={() =>
+          setState((prevState) => ({ ...prevState, open: false }))
+        }
         menuItems={menuItems}
         menuIcons={menuIcons}
         onMenuItemClick={handleMenuItemClick}
