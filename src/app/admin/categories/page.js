@@ -23,41 +23,37 @@ export default function CategoryManagement() {
   });
 
   useEffect(() => {
-    const loadCategories = async () => {
-      const { data } = await fetchCategories(1, 10);
-      setCategories(data);
-    };
-    loadCategories();
+    fetchCategories(1, 10).then(({ data }) => setCategories(data));
   }, []);
 
-  const handleCreate = () => {
-    setFormState({
-      name: "",
-      description: "",
-    });
-    setModalType("create");
+  const handleOpenModal = (type, row = { name: "", description: "" }) => {
+    setFormState(row);
+    setModalType(type);
     setIsModalOpen(true);
   };
 
-  const handleEdit = async () => {
-    if (!selectedRowId) return;
-    const selectedRow = categories.find(
-      (row) => row.categoryId === selectedRowId,
-    );
-    setFormState({
-      name: selectedRow.name,
-      description: selectedRow.description,
-    });
-    setModalType("edit");
-    setIsModalOpen(true);
+  const handleCreate = () => handleOpenModal("create");
+
+  const handleEdit = () => {
+    console.log("Selected Row ID:", selectedRowId);
+    if (selectedRowId) {
+      const selectedRow = categories.find(
+        ({ categoryId }) => categoryId === selectedRowId,
+      );
+      if (selectedRow) {
+        handleOpenModal("edit", selectedRow);
+      }
+    }
   };
 
   const handleDelete = async () => {
-    if (!selectedRowId) return;
-    await deleteCategory(selectedRowId);
-    const { data } = await fetchCategories(1, 10);
-    setCategories(data);
-    setSelectedRowId(null);
+    if (selectedRowId) {
+      await deleteCategory(selectedRowId);
+      fetchCategories(1, 10).then(({ data }) => {
+        setCategories(data);
+        setSelectedRowId(null);
+      });
+    }
   };
 
   const handleCloseModal = () => {
@@ -65,12 +61,8 @@ export default function CategoryManagement() {
     setSelectedRowId(null);
   };
 
-  const handleInputChange = (e) => {
-    setFormState({
-      ...formState,
-      [e.target.name]: e.target.value,
-    });
-  };
+  const handleInputChange = ({ target: { name, value } }) =>
+    setFormState((prev) => ({ ...prev, [name]: value }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -80,12 +72,11 @@ export default function CategoryManagement() {
       await updateCategory(selectedRowId, formState);
     }
     setIsModalOpen(false);
-    const { data } = await fetchCategories(1, 10);
-    setCategories(data);
+    fetchCategories(1, 10).then(({ data }) => setCategories(data));
   };
 
   return (
-    <React.Fragment>
+    <>
       <GenericDataGrid
         rows={categories.map((category) => ({
           id: category.categoryId,
@@ -100,11 +91,13 @@ export default function CategoryManagement() {
         handleCreate={handleCreate}
         handleEdit={handleEdit}
         handleDelete={handleDelete}
+        setSelectedRowId={setSelectedRowId}
+        selectedRowId={selectedRowId}
       />
       <GenericModal
         open={isModalOpen}
         handleClose={handleCloseModal}
-        title={selectedRowId ? "Edit Category" : "Create Category"}
+        title={modalType === "edit" ? "Edit Category" : "Create Category"}
       >
         <GenericForm
           formState={formState}
@@ -114,9 +107,9 @@ export default function CategoryManagement() {
             { name: "name", label: "Name", type: "text" },
             { name: "description", label: "Description", type: "text" },
           ]}
-          submitLabel={selectedRowId ? "Update" : "Create"}
+          submitLabel={modalType === "edit" ? "Update" : "Create"}
         />
       </GenericModal>
-    </React.Fragment>
+    </>
   );
 }

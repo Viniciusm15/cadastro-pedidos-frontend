@@ -10,11 +10,11 @@ export default function GenericDataGrid({
   handleCreate,
   handleEdit,
   handleDelete,
+  selectedRowId,
+  setSelectedRowId,
   sx,
 }) {
-  const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSize] = useState(pageSizeOptions[0]);
-  const [selectedRowId, setSelectedRowId] = useState(null);
 
   return (
     <DataGrid
@@ -23,11 +23,10 @@ export default function GenericDataGrid({
       columns={columns}
       pagination
       pageSize={pageSize}
-      onPageChange={(params) => setPageNumber(params.page)}
-      onPageSizeChange={(params) => setPageSize(params.pageSize)}
+      onPageSizeChange={(newSize) => setPageSize(newSize)}
       rowSelectionModel={selectedRowId ? [selectedRowId] : []}
       onRowSelectionModelChange={(newSelection) => {
-        setSelectedRowId(newSelection.length > 0 ? newSelection[0] : null);
+        setSelectedRowId(newSelection.length ? newSelection[0] : null);
       }}
       slots={{
         toolbar: () => (
