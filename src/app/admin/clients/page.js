@@ -6,168 +6,227 @@ import {
   updateClient,
   deleteClient,
 } from "../../../api/client";
-import Box from "../../../components/Box/Box";
+import GenericDataGrid from "../../../components/DataGrid/DataGrid";
 import GenericForm from "../../../components/Form/Form";
 import GenericList from "../../../components/List/List";
 import GenericModal from "../../../components/Modal/Modal";
-import GenericTable from "../../../components/Table/Table";
 import styles from "../../../styles/base/pages/clientManagement.module.css";
-import { Delete, Edit, Visibility } from "@mui/icons-material";
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+} from "@mui/icons-material";
 import Typography from "@mui/material/Typography";
 import dayjs from "dayjs";
 import React, { useState, useEffect } from "react";
 
 export default function ClientManagement() {
   const [clients, setClients] = useState([]);
-  const [pagination, setPagination] = useState({
-    pageNumber: 1,
-    pageSize: 10,
-    totalCount: 0,
-  });
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [selectedClient, setSelectedClient] = useState(null);
   const [formState, setFormState] = useState({
     name: "",
     email: "",
     telephone: "",
     birthDate: dayjs(),
-    id: null,
-    isEditing: false,
   });
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedClient, setSelectedClient] = useState(null);
 
   useEffect(() => {
-    const loadClients = async () => {
-      const { data, totalCount } = await fetchClients(
-        pagination.pageNumber,
-        pagination.pageSize,
-      );
-      setClients(data);
-      setPagination((prev) => ({ ...prev, totalCount }));
-    };
-    loadClients();
-  }, [pagination.pageNumber, pagination.pageSize]);
+    fetchClients(1, 10).then(({ data }) => setClients(data));
+  }, []);
 
-  const handleInputChange = (e) =>
-    setFormState({ ...formState, [e.target.name]: e.target.value });
-
-  const handleDateChange = (fieldName, date) => {
-    setFormState((prevState) => ({ ...prevState, [fieldName]: dayjs(date) }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formattedDate = formState.birthDate?.format("YYYY-MM-DD");
-    const clientData = { ...formState, birthDate: formattedDate };
-
-    formState.isEditing
-      ? await updateClient(formState.id, clientData)
-      : await createClient(clientData);
-
-    setPagination((prev) => ({ ...prev, pageNumber: 1 }));
-    setFormState({
-      name: "",
-      email: "",
-      telephone: "",
-      birthDate: dayjs(),
-      id: null,
-      isEditing: false,
-    });
-  };
-
-  const handleEdit = (client) => {
-    setFormState({
-      name: client.name,
-      email: client.email,
-      telephone: client.telephone,
-      birthDate: dayjs(client.birthDate),
-      id: client.clientId,
-      isEditing: true,
-    });
-  };
-
-  const handleDelete = async (id) => {
-    await deleteClient(id);
-    setPagination((prev) => ({ ...prev, pageNumber: 1 }));
-  };
-
-  const handleViewPurchaseHistory = (client) => {
-    setSelectedClient(client);
+  const openModal = (type, row = {}) => {
+    setFormState(row);
+    setModalType(type);
     setIsModalOpen(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCreate = () => openModal("create");
+
+  const handleActionWithSelectedClient = (action) => {
+    const selectedClient = clients.find(
+      ({ clientId }) => clientId === selectedRowId,
+    );
+    if (selectedClient) {
+      setSelectedClient(selectedClient);
+      const clientData = {
+        ...selectedClient,
+        birthDate: dayjs(selectedClient.birthDate),
+      };
+      action(clientData);
+    }
+  };
+
+  const handleEdit = () =>
+    handleActionWithSelectedClient((clientData) =>
+      openModal("edit", clientData),
+    );
+
+  const handleView = () =>
+    handleActionWithSelectedClient((clientData) =>
+      openModal("view", clientData),
+    );
+
+  const handleDelete = async () => {
+    if (selectedRowId) {
+      await deleteClient(selectedRowId);
+      setClients((prev) =>
+        prev.filter(({ clientId }) => clientId !== selectedRowId),
+      );
+      setSelectedRowId(null);
+    }
+  };
+
+  const closeModal = () => {
     setIsModalOpen(false);
-    setSelectedClient(null);
+    setSelectedRowId(null);
+  };
+
+  const handleInputChange = ({ target: { name, value } }) =>
+    setFormState((prev) => ({ ...prev, [name]: value }));
+
+  const handleDateChange = (fieldName, date) =>
+    setFormState((prevState) => ({ ...prevState, [fieldName]: dayjs(date) }));
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const clientData = {
+      ...formState,
+      birthDate: formState.birthDate.format("YYYY-MM-DD"),
+    };
+
+    if (modalType === "create") {
+      await createClient(clientData);
+    } else if (modalType === "edit") {
+      await updateClient(selectedRowId, clientData);
+    }
+    closeModal();
+    fetchClients(1, 10).then(({ data }) => setClients(data));
   };
 
   return (
-    <Box>
-      <GenericForm
-        formState={formState}
-        handleInputChange={handleInputChange}
-        handleSubmit={handleSubmit}
-        handleDateChange={handleDateChange}
-        fields={[
-          { name: "name", label: "Client Name" },
-          { name: "email", label: "Email" },
-          { name: "telephone", label: "Telephone" },
-          { name: "birthDate", label: "Birth Date", type: "date" },
-        ]}
-        submitLabel={formState.isEditing ? "Update" : "Register"}
-      />
-      <GenericTable
-        headers={["name", "email", "telephone", "birthDate"]}
-        data={clients}
-        actions={[
+    <React.Fragment>
+      <GenericDataGrid
+        rows={clients.map((client) => ({ id: client.clientId, ...client }))}
+        columns={[
+          { field: "name", headerName: "Name", width: 150 },
+          { field: "email", headerName: "Email", width: 200 },
+          { field: "telephone", headerName: "Telephone", width: 150 },
           {
-            icon: <Visibility className={styles.whiteIcon} />,
-            onClick: handleViewPurchaseHistory,
+            field: "birthDate",
+            headerName: "Birth Date",
+            width: 150,
+            valueFormatter: (params) =>
+              dayjs(params.value).format("MM/DD/YYYY"),
           },
-          { icon: <Edit className={styles.whiteIcon} />, onClick: handleEdit },
+        ]}
+        pageSizeOptions={[10, 25, 50]}
+        handleCreate={handleCreate}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
+        setSelectedRowId={setSelectedRowId}
+        selectedRowId={selectedRowId}
+        additionalActions={[
+          { label: "Create", icon: <EditIcon />, onClick: handleCreate },
           {
-            icon: <Delete className={styles.whiteIcon} />,
+            label: "View",
+            icon: <VisibilityIcon />,
+            onClick: handleView,
+            needsSelection: true,
+          },
+          {
+            label: "Edit",
+            icon: <EditIcon />,
+            onClick: handleEdit,
+            needsSelection: true,
+          },
+          {
+            label: "Delete",
+            icon: <DeleteIcon />,
             onClick: handleDelete,
+            needsSelection: true,
           },
         ]}
-        page={pagination.pageNumber}
-        pageSize={pagination.pageSize}
-        totalCount={pagination.totalCount}
-        onPageChange={(newPage) =>
-          setPagination((prev) => ({ ...prev, pageNumber: newPage }))
-        }
-        onPageSizeChange={(newSize) =>
-          setPagination({ pageSize: newSize, pageNumber: 1 })
-        }
       />
-      {selectedClient && (
-        <GenericModal
-          open={isModalOpen}
-          handleClose={handleCloseModal}
-          title="Purchase History"
-        >
-          <Typography>Nome: {selectedClient.name}</Typography>
-          <Typography>Email: {selectedClient.email}</Typography>
-          <GenericList
-            items={selectedClient.purchaseHistory}
-            primaryText={(purchase) => `Order ID: ${purchase.orderId}`}
-            secondaryText={(purchase) => (
-              <React.Fragment>
-                <Typography component="span" className={styles.purchaseDate}>
-                  Order Date: {dayjs(purchase.orderDate).format("MM/DD/YYYY")}
-                </Typography>
-                <Typography component="span" className={styles.totalValue}>
-                  Total Value:{" "}
-                  {purchase.totalValue.toLocaleString("en-US", {
-                    style: "currency",
-                    currency: "USD",
-                  })}
-                </Typography>
-              </React.Fragment>
-            )}
-            emptyMessage="No purchase history available"
+      <GenericModal
+        open={isModalOpen}
+        handleClose={closeModal}
+        title={
+          modalType === "edit"
+            ? "Edit Client"
+            : modalType === "view"
+              ? "View Client"
+              : "Create Client"
+        }
+      >
+        {modalType === "view" && selectedClient ? (
+          <React.Fragment>
+            <Typography>Name: {selectedClient.name}</Typography>
+            <Typography>Email: {selectedClient.email}</Typography>
+            <GenericList
+              items={selectedClient.purchaseHistory}
+              primaryText={(purchase) => `Order ID: ${purchase.orderId}`}
+              secondaryText={(purchase) => (
+                <React.Fragment>
+                  <Typography component="span" className={styles.purchaseDate}>
+                    Order Date: {dayjs(purchase.orderDate).format("MM/DD/YYYY")}
+                  </Typography>
+                  <Typography component="span" className={styles.totalValue}>
+                    Total Value:{" "}
+                    {purchase.totalValue.toLocaleString("en-US", {
+                      style: "currency",
+                      currency: "USD",
+                    })}
+                  </Typography>
+                </React.Fragment>
+              )}
+              emptyMessage="No purchase history available"
+            />
+          </React.Fragment>
+        ) : (
+          <GenericForm
+            formState={formState}
+            handleInputChange={handleInputChange}
+            handleDateChange={handleDateChange}
+            handleSubmit={modalType === "view" ? closeModal : handleSubmit}
+            fields={[
+              {
+                name: "name",
+                label: "Client Name",
+                type: "text",
+                disabled: modalType === "view",
+              },
+              {
+                name: "email",
+                label: "Email",
+                type: "text",
+                disabled: modalType === "view",
+              },
+              {
+                name: "telephone",
+                label: "Telephone",
+                type: "text",
+                disabled: modalType === "view",
+              },
+              {
+                name: "birthDate",
+                label: "Birth Date",
+                type: "date",
+                disabled: modalType === "view",
+              },
+            ]}
+            submitLabel={
+              modalType === "edit"
+                ? "Update"
+                : modalType === "view"
+                  ? "Close"
+                  : "Create"
+            }
           />
-        </GenericModal>
-      )}
-    </Box>
+        )}
+      </GenericModal>
+    </React.Fragment>
   );
 }
