@@ -1,32 +1,19 @@
 import styles from "./CustomToolbar.module.css";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import { GridToolbarContainer } from "@mui/x-data-grid";
 
-export default function CustomToolbar({
-  handleCreate,
-  handleEdit,
-  handleDelete,
-  selectedRowId,
-}) {
+export default function CustomToolbar({ actions = [], selectedRowId }) {
   return (
     <GridToolbarContainer className={styles.customToolbar}>
-      <button onClick={handleCreate} className={styles.toolbarButton}>
-        <EditIcon /> Create
-      </button>
-      <button
-        onClick={handleEdit}
-        className={styles.toolbarButton}
-        disabled={!selectedRowId}
-      >
-        <EditIcon /> Edit
-      </button>
-      <button
-        onClick={handleDelete}
-        className={styles.toolbarButton}
-        disabled={!selectedRowId}
-      >
-        <DeleteIcon /> Delete
-      </button>
+      {actions.map((action, index) => (
+        <button
+          key={index}
+          onClick={action.onClick}
+          className={styles.toolbarButton}
+          disabled={action.needsSelection && !selectedRowId}
+        >
+          {action.icon} {action.label}
+        </button>
+      ))}
     </GridToolbarContainer>
   );
 }

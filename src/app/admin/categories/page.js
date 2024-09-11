@@ -9,6 +9,7 @@ import {
 import GenericDataGrid from "../../../components/DataGrid/DataGrid";
 import GenericForm from "../../../components/Form/Form";
 import GenericModal from "../../../components/Modal/Modal";
+import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
 import React, { useState, useEffect } from "react";
 
 export default function CategoryManagement() {
@@ -35,7 +36,6 @@ export default function CategoryManagement() {
   const handleCreate = () => handleOpenModal("create");
 
   const handleEdit = () => {
-    console.log("Selected Row ID:", selectedRowId);
     if (selectedRowId) {
       const selectedRow = categories.find(
         ({ categoryId }) => categoryId === selectedRowId,
@@ -76,7 +76,7 @@ export default function CategoryManagement() {
   };
 
   return (
-    <>
+    <React.Fragment>
       <GenericDataGrid
         rows={categories.map((category) => ({
           id: category.categoryId,
@@ -93,6 +93,21 @@ export default function CategoryManagement() {
         handleDelete={handleDelete}
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
+        additionalActions={[
+          { label: "Create", icon: <EditIcon />, onClick: handleCreate },
+          {
+            label: "Edit",
+            icon: <EditIcon />,
+            onClick: handleEdit,
+            needsSelection: true,
+          },
+          {
+            label: "Delete",
+            icon: <DeleteIcon />,
+            onClick: handleDelete,
+            needsSelection: true,
+          },
+        ]}
       />
       <GenericModal
         open={isModalOpen}
@@ -110,6 +125,6 @@ export default function CategoryManagement() {
           submitLabel={modalType === "edit" ? "Update" : "Create"}
         />
       </GenericModal>
-    </>
+    </React.Fragment>
   );
 }

@@ -7,11 +7,9 @@ export default function GenericDataGrid({
   rows,
   columns,
   pageSizeOptions,
-  handleCreate,
-  handleEdit,
-  handleDelete,
   selectedRowId,
   setSelectedRowId,
+  additionalActions = [],
   sx,
 }) {
   const [pageSize, setPageSize] = useState(pageSizeOptions[0]);
@@ -31,9 +29,7 @@ export default function GenericDataGrid({
       slots={{
         toolbar: () => (
           <CustomToolbar
-            handleCreate={handleCreate}
-            handleEdit={handleEdit}
-            handleDelete={handleDelete}
+            actions={additionalActions}
             selectedRowId={selectedRowId}
           />
         ),
