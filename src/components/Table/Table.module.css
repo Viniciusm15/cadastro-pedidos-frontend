@@ -10,23 +10,14 @@
   white-space: nowrap;
 }
 
-.tablePagination {
-  color: #ffffff;
-}
-
 .tablePagination .MuiTablePagination-toolbar {
   background-color: #333333;
 }
 
+.tablePagination,
 .tablePagination .MuiTablePagination-input,
-.tablePagination .MuiTablePagination-caption {
-  color: #ffffff;
-}
-
-.tablePagination .MuiTablePagination-actions {
-  color: #ffffff;
-}
-
+.tablePagination .MuiTablePagination-caption,
+.tablePagination .MuiTablePagination-actions,
 .tablePagination .MuiSelect-icon {
   color: #ffffff;
 }

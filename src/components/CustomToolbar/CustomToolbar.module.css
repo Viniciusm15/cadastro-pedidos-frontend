@@ -1,0 +1,34 @@
+.customToolbar {
+  display: flex;
+  justify-content: flex-end;
+  background-color: #0f1214;
+  padding: 10px;
+  border-bottom: 1px solid #333;
+}
+
+.toolbarButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #444;
+  color: #fff;
+  border: none;
+  border-radius: 15px;
+  padding: 8px 12px;
+  margin-left: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.toolbarButton:hover {
+  background-color: #555;
+}
+
+.toolbarButton:disabled {
+  background-color: #666;
+  cursor: not-allowed;
+}
+
+.toolbarButton svg {
+  margin-right: 6px;
+}

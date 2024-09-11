@@ -1,3 +1,4 @@
+/* Form Styles */
 .form {
   display: flex;
   flex-direction: column;
@@ -46,10 +47,7 @@
   background-color: #333333;
 }
 
-.MuiTypography-root {
-  color: #ffffff;
-}
-
+.MuiTypography-root,
 .MuiIconButton-root {
   color: #ffffff;
 }

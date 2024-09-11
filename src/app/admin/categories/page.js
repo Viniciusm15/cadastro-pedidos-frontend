@@ -6,94 +6,117 @@ import {
   updateCategory,
   deleteCategory,
 } from "../../../api/category";
-import Box from "../../../components/Box/Box";
+import GenericDataGrid from "../../../components/DataGrid/DataGrid";
 import GenericForm from "../../../components/Form/Form";
-import GenericTable from "../../../components/Table/Table";
-import styles from "../../../styles/base/pages/categoryManagement.module.css";
-import { Delete as DeleteIcon, Edit as EditIcon } from "@mui/icons-material";
-import { useState, useEffect } from "react";
+import GenericModal from "../../../components/Modal/Modal";
+import React, { useState, useEffect } from "react";
 
 export default function CategoryManagement() {
   const [categories, setCategories] = useState([]);
-  const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSize] = useState(10);
-  const [totalCount, setTotalCount] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState("");
+  const [selectedRowId, setSelectedRowId] = useState(null);
   const [formState, setFormState] = useState({
     name: "",
     description: "",
-    id: null,
-    isEditing: false,
+    productCount: 0,
   });
 
   useEffect(() => {
     const loadCategories = async () => {
-      const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
+      const { data } = await fetchCategories(1, 10);
       setCategories(data);
-      setTotalCount(totalCount);
     };
     loadCategories();
-  }, [pageNumber, pageSize]);
+  }, []);
+
+  const handleCreate = () => {
+    setFormState({
+      name: "",
+      description: "",
+    });
+    setModalType("create");
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = async () => {
+    if (!selectedRowId) return;
+    const selectedRow = categories.find(
+      (row) => row.categoryId === selectedRowId,
+    );
+    setFormState({
+      name: selectedRow.name,
+      description: selectedRow.description,
+    });
+    setModalType("edit");
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedRowId) return;
+    await deleteCategory(selectedRowId);
+    const { data } = await fetchCategories(1, 10);
+    setCategories(data);
+    setSelectedRowId(null);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRowId(null);
+  };
+
+  const handleInputChange = (e) => {
+    setFormState({
+      ...formState,
+      [e.target.name]: e.target.value,
+    });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const action = formState.isEditing ? updateCategory : createCategory;
-    await action(formState.id, {
-      name: formState.name,
-      description: formState.description,
-    });
-    setFormState({ name: "", description: "", id: null, isEditing: false });
-    const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
+    if (modalType === "create") {
+      await createCategory(formState);
+    } else if (modalType === "edit") {
+      await updateCategory(selectedRowId, formState);
+    }
+    setIsModalOpen(false);
+    const { data } = await fetchCategories(1, 10);
     setCategories(data);
-    setTotalCount(totalCount);
-  };
-
-  const handleEdit = (category) =>
-    setFormState({ ...category, id: category.categoryId, isEditing: true });
-  const handleDelete = async (id) => {
-    await deleteCategory(id);
-    const { data, totalCount } = await fetchCategories(pageNumber, pageSize);
-    setCategories(data);
-    setTotalCount(totalCount);
   };
 
   return (
-    <Box>
-      <GenericForm
-        formState={formState}
-        handleInputChange={(e) =>
-          setFormState({ ...formState, [e.target.name]: e.target.value })
-        }
-        handleSubmit={handleSubmit}
-        fields={[
-          { name: "name", label: "Category Name" },
-          {
-            name: "description",
-            label: "Description",
-            multiline: true,
-            rows: 4,
-          },
+    <React.Fragment>
+      <GenericDataGrid
+        rows={categories.map((category) => ({
+          id: category.categoryId,
+          ...category,
+        }))}
+        columns={[
+          { field: "name", headerName: "Name", width: 150 },
+          { field: "description", headerName: "Description", width: 200 },
+          { field: "productCount", headerName: "Product Count", width: 150 },
         ]}
-        submitLabel={formState.isEditing ? "Update" : "Register"}
+        pageSizeOptions={[10, 25, 50]}
+        handleCreate={handleCreate}
+        handleEdit={handleEdit}
+        handleDelete={handleDelete}
       />
-      <GenericTable
-        headers={["name", "description", "productCount"]}
-        data={categories}
-        actions={[
-          {
-            icon: <EditIcon className={styles.whiteIcon} />,
-            onClick: handleEdit,
-          },
-          {
-            icon: <DeleteIcon className={styles.whiteIcon} />,
-            onClick: handleDelete,
-          },
-        ]}
-        page={pageNumber}
-        pageSize={pageSize}
-        totalCount={totalCount}
-        onPageChange={setPageNumber}
-        onPageSizeChange={(newSize) => setPageSize(newSize)}
-      />
-    </Box>
+      <GenericModal
+        open={isModalOpen}
+        handleClose={handleCloseModal}
+        title={selectedRowId ? "Edit Category" : "Create Category"}
+      >
+        <GenericForm
+          formState={formState}
+          handleInputChange={handleInputChange}
+          handleSubmit={handleSubmit}
+          fields={[
+            { name: "name", label: "Name", type: "text" },
+            { name: "description", label: "Description", type: "text" },
+          ]}
+          submitLabel={selectedRowId ? "Update" : "Create"}
+        />
+      </GenericModal>
+    </React.Fragment>
   );
 }
