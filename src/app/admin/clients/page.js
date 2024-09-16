@@ -118,8 +118,7 @@ export default function ClientManagement() {
             field: "birthDate",
             headerName: "Birth Date",
             width: 150,
-            valueFormatter: (params) =>
-              dayjs(params.value).format("MM/DD/YYYY"),
+            valueFormatter: (params) => dayjs(params).format("MM/DD/YYYY"),
           },
         ]}
         pageSizeOptions={[10, 25, 50]}

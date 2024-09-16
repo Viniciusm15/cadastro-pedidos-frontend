@@ -23,20 +23,24 @@ export default function GenericForm({
               label={field.label}
               value={formState[field.name]}
               onChange={(date) => handleDateChange(field.name, date)}
-              textField={(params) => (
-                <TextField
-                  {...params}
-                  fullWidth
-                  className={`${styles.formField} ${styles.datePickerField}`}
-                  InputLabelProps={{
+              slotProps={{
+                textField: {
+                  fullWidth: true,
+                  InputLabelProps: {
                     style: { color: "#ffffff" },
-                  }}
-                  InputProps={{
-                    style: { color: "#ffffff" },
-                  }}
-                  sx={{ marginTop: "10px" }}
-                />
-              )}
+                  },
+                  InputProps: {
+                    className: styles.formField,
+                  },
+                  inputProps: {},
+                  sx: {
+                    marginTop: "10px",
+                    "& .MuiSvgIcon-root": {
+                      color: "#ffffff", // cor do ícone do calendário
+                    },
+                  },
+                },
+              }}
             />
           ) : (
             <TextField
