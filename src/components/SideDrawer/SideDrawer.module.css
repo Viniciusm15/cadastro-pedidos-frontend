@@ -1,10 +1,28 @@
+.drawer {
+  width: 240px;
+  flex-shrink: 0;
+}
+
 .drawerPaper {
   width: 240px;
   box-sizing: border-box;
+  background-color: #48494f;
+}
+
+.icon,
+.listItemText {
+  color: white;
+}
+
+.divider {
+  background-color: #6c6c72;
 }
 
 .selectedMenuItem {
-  background-color: #e0e0e0;
+  background-color: #1d1c23; 
   font-weight: bold;
-  color: #1976d2;
+}
+
+.listItemButton:hover {
+  background-color: #6c6c72;
 }

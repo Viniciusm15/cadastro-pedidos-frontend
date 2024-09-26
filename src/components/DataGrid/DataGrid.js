@@ -61,7 +61,7 @@ export default function GenericDataGrid({
           color: "#fff",
         },
         "& .MuiSelect-icon": {
-          color: "white",
+          color: "#fff",
         },
         ...sx,
       }}

@@ -14,8 +14,6 @@ import {
 import { styled, useTheme } from "@mui/material/styles";
 import React from "react";
 
-const drawerWidth = 240;
-
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -36,38 +34,33 @@ export default function SideDrawer({
 
   return (
     <Drawer
-      sx={{
-        width: drawerWidth,
-        flexShrink: 0,
-        "& .MuiDrawer-paper": {
-          width: drawerWidth,
-          boxSizing: "border-box",
-        },
-      }}
+      className={styles.drawer}
       variant="persistent"
       anchor="left"
       open={open}
       classes={{ paper: styles.drawerPaper }}
     >
-      <DrawerHeader>
+      <DrawerHeader className={styles.drawerHeader}>
         <IconButton onClick={handleDrawerClose}>
           {theme.direction === "ltr" ? (
-            <ChevronLeftIcon />
+            <ChevronLeftIcon className={styles.icon} />
           ) : (
-            <ChevronRightIcon />
+            <ChevronRightIcon className={styles.icon} />
           )}
         </IconButton>
       </DrawerHeader>
-      <Divider />
+      <Divider className={styles.divider} />
       <List>
         {menuItems.map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton
-              className={text === selectedText ? styles.selectedMenuItem : ""}
+              className={`${text === selectedText ? styles.selectedMenuItem : ""} ${styles.listItemButton}`}
               onClick={() => onMenuItemClick(text)}
             >
-              <ListItemIcon>{menuIcons[index]}</ListItemIcon>
-              <ListItemText primary={text} />
+              <ListItemIcon className={styles.icon}>
+                {menuIcons[index]}
+              </ListItemIcon>
+              <ListItemText primary={text} className={styles.listItemText} />
             </ListItemButton>
           </ListItem>
         ))}
