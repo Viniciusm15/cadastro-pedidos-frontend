@@ -7,6 +7,7 @@ import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MenuIcon from "@mui/icons-material/Menu";
 import PeopleIcon from "@mui/icons-material/People";
+import ProductsIcon from '@mui/icons-material/LocalShipping';
 import {
   Box,
   CssBaseline,
@@ -50,6 +51,7 @@ export default function AdminLayout({ children }) {
   useEffect(() => {
     const pathToText = {
       "/admin": "Dashboard",
+      "/admin/products": "Products",
       "/admin/categories": "Categories",
       "/admin/clients": "Clients",
       "/admin/orders": "Orders",
@@ -61,13 +63,14 @@ export default function AdminLayout({ children }) {
   }, [pathname]);
 
   const menuItems = useMemo(
-    () => ["Dashboard", "Categories", "Clients", "Orders"],
+    () => ["Dashboard", "Products", "Categories", "Clients", "Orders"],
     [],
   );
 
   const menuIcons = useMemo(
     () => [
       <DashboardIcon />,
+      <ProductsIcon />,
       <CategoryIcon />,
       <PeopleIcon />,
       <AssignmentIcon />,
