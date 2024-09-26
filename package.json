@@ -21,7 +21,7 @@
     "date-fns": "^3.6.0",
     "dayjs": "^1.11.13",
     "material-ui-popup-state": "^5.1.2",
-    "next": "14.2.5",
+    "next": "^14.2.12",
     "prettier-plugin-sort-imports": "^1.8.6",
     "react": "^18",
     "react-dom": "^18",
