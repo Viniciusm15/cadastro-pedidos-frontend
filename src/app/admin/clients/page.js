@@ -7,6 +7,7 @@ import {
   deleteClient,
 } from "../../../api/client";
 import GenericDataGrid from "../../../components/DataGrid/DataGrid";
+import GenericDatePicker from "../../../components/DatePicker/DatePicker";
 import GenericForm from "../../../components/Form/Form";
 import GenericList from "../../../components/List/List";
 import GenericModal from "../../../components/Modal/Modal";
@@ -209,13 +210,15 @@ export default function ClientManagement() {
                 type: "text",
                 disabled: modalType === "view",
               },
-              {
-                name: "birthDate",
-                label: "Birth Date",
-                type: "date",
-                disabled: modalType === "view",
-              },
             ]}
+            additionalFields={
+              <GenericDatePicker
+                label="Birth Date"
+                value={formState.birthDate}
+                onChange={(date) => handleDateChange("birthDate", date)}
+                disabled={modalType === "view"}
+              />
+            }
             submitLabel={
               modalType === "edit"
                 ? "Update"

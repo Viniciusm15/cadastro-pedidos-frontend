@@ -1,0 +1,19 @@
+.inputBase {
+  color: #ffffff;
+}
+
+.inputLabel {
+  color: #ffffff;
+}
+
+.svgIcon {
+  color: #ffffff;
+}
+
+.outlinedInputRoot:hover fieldset {
+  border-color: #1976d2;
+}
+
+.outlinedInputRoot.Mui-focused fieldset {
+  border-color: #1976d2;
+}
