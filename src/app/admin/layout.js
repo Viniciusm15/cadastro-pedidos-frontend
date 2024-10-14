@@ -5,9 +5,9 @@ import "../../styles/base/pages/adminLayout.module.css";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import CategoryIcon from "@mui/icons-material/Category";
 import DashboardIcon from "@mui/icons-material/Dashboard";
+import ProductsIcon from "@mui/icons-material/LocalShipping";
 import MenuIcon from "@mui/icons-material/Menu";
 import PeopleIcon from "@mui/icons-material/People";
-import ProductsIcon from '@mui/icons-material/LocalShipping';
 import {
   Box,
   CssBaseline,
@@ -79,8 +79,10 @@ export default function AdminLayout({ children }) {
   );
 
   const handleMenuItemClick = (text) => {
+    const path =
+      text === "Dashboard" ? "/admin" : `/admin/${text.toLowerCase()}`;
     setState((prevState) => ({ ...prevState, selectedText: text }));
-    router.push(`/admin/${text.toLowerCase()}`);
+    router.push(path);
   };
 
   return (
