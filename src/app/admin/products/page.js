@@ -109,7 +109,6 @@ export default function ProductManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Submitting form state:", formState); // Verifique os dados aqui
     if (modalType === "create") {
       await createProduct(formState);
     } else if (modalType === "edit") {
