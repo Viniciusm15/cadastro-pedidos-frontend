@@ -26,7 +26,24 @@ export const getProductById = async (id) => {
 
 export const createProduct = async (data) => {
   try {
-    await axios.post(`${apiUrl}/api/Product`, data);
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("description", data.description);
+    formData.append("price", data.price);
+    formData.append("stockQuantity", data.stockQuantity);
+    formData.append("categoryId", data.categoryId);
+
+    if (data.image) {
+      formData.append("Image.Description", data.image.description);
+      formData.append("Image.ImageMimeType", data.image.imageMimeType);
+      formData.append("Image.ImageData", data.image.imageData);
+    }
+
+    await axios.post(`${apiUrl}/api/Product`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
   } catch (error) {
     throw error;
   }

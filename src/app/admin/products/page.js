@@ -8,6 +8,7 @@ import {
   deleteProduct,
 } from "../../../api/product";
 import GenericDataGrid from "../../../components/DataGrid/DataGrid";
+import GenericFileUploadButton from "../../../components/FileUploadButton/FileUploadButton";
 import GenericForm from "../../../components/Form/Form";
 import GenericModal from "../../../components/Modal/Modal";
 import GenericSelect from "../../../components/Select/Select";
@@ -26,6 +27,7 @@ export default function ProductManagement() {
     price: 0,
     stockQuantity: 0,
     categoryId: "",
+    image: null,
   });
 
   useEffect(() => {
@@ -41,6 +43,7 @@ export default function ProductManagement() {
       price: 0,
       stockQuantity: 0,
       categoryId: "",
+      image: null,
     },
   ) => {
     setFormState(row);
@@ -74,13 +77,39 @@ export default function ProductManagement() {
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setSelectedRowId(null);
+    setFormState({
+      name: "",
+      description: "",
+      price: 0,
+      stockQuantity: 0,
+      categoryId: "",
+      image: null,
+    });
   };
 
   const handleInputChange = ({ target: { name, value } }) =>
     setFormState((prev) => ({ ...prev, [name]: value }));
 
+  const handleFileUpload = (file) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result.split(",")[1];
+
+      setFormState((prev) => ({
+        ...prev,
+        image: {
+          description: file.name,
+          imageMimeType: file.type,
+          imageData: base64String,
+        },
+      }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("Submitting form state:", formState); // Verifique os dados aqui
     if (modalType === "create") {
       await createProduct(formState);
     } else if (modalType === "edit") {
@@ -145,16 +174,23 @@ export default function ProductManagement() {
             { name: "stockQuantity", label: "Stock Quantity", type: "number" },
           ]}
           additionalFields={
-            <GenericSelect
-              label="Category"
-              name="categoryId"
-              value={formState.categoryId}
-              onChange={handleInputChange}
-              options={categories.map((category) => ({
-                value: category.categoryId,
-                label: category.name,
-              }))}
-            />
+            <React.Fragment>
+              <GenericSelect
+                label="Category"
+                name="categoryId"
+                value={formState.categoryId}
+                onChange={handleInputChange}
+                options={categories.map((category) => ({
+                  value: category.categoryId,
+                  label: category.name,
+                }))}
+              />
+              <GenericFileUploadButton
+                onUpload={handleFileUpload}
+                accept="image/*"
+                buttonText="Upload Product Image"
+              />
+            </React.Fragment>
           }
           submitLabel={modalType === "edit" ? "Update" : "Create"}
         />
