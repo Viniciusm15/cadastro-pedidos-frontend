@@ -8,9 +8,7 @@ export default function AdminPage() {
     <React.Fragment>
       <Typography paragraph>
         Dashboard: Visão geral de vendas, produtos em estoque baixo, pedidos
-        pendentes, clientes ativos. Gerenciamento de Produtos: Cadastro, edição
-        e exclusão de produtos. Listagem de produtos com filtros (categoria,
-        preço, estoque). Upload de imagens de produtos.
+        pendentes, clientes ativos.
       </Typography>
     </React.Fragment>
   );

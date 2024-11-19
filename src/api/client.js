@@ -43,7 +43,7 @@ export const updateClient = async (id, clientData) => {
 
 export const deleteClient = async (id) => {
   try {
-    await axios.delete(`${apiUrl}/api/Clients/${id}`);
+    await axios.delete(`${apiUrl}/api/Client/${id}`);
   } catch (error) {
     throw error;
   }
