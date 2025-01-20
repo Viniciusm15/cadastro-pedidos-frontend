@@ -39,7 +39,10 @@ export default function ClientManagement() {
   }, []);
 
   const openModal = (type, row = {}) => {
-    setFormState(row);
+    setFormState({
+      ...row,
+      orderDate: row.orderDate ? dayjs(row.orderDate) : dayjs(),
+    });
     setModalType(type);
     setIsModalOpen(true);
   };
@@ -88,23 +91,26 @@ export default function ClientManagement() {
   const handleInputChange = ({ target: { name, value } }) =>
     setFormState((prev) => ({ ...prev, [name]: value }));
 
-  const handleDateChange = (fieldName, date) =>
-    setFormState((prevState) => ({ ...prevState, [fieldName]: dayjs(date) }));
+  const handleDateChange = (date) =>
+    setFormState((prevState) => ({
+      ...prevState,
+      orderDate: dayjs(date),
+    }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const clientData = {
+    const orderData = {
       ...formState,
-      birthDate: formState.birthDate.format("YYYY-MM-DD"),
+      orderDate: formState.orderDate.format("YYYY-MM-DD"),
     };
 
     if (modalType === "create") {
-      await createClient(clientData);
+      await createOrder(orderData);
     } else if (modalType === "edit") {
-      await updateClient(selectedRowId, clientData);
+      await updateOrder(selectedRowId, orderData);
     }
     closeModal();
-    fetchClients(1, 10).then(({ data }) => setClients(data));
+    fetchOrders().then(({ data }) => setOrders(data));
   };
 
   return (

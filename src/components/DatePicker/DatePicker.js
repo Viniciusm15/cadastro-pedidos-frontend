@@ -32,11 +32,6 @@ export default function GenericDatePicker({
             classes: {
               root: styles.outlinedInputRoot,
             },
-            InputAdornmentProps: {
-              classes: {
-                root: styles.svgIcon,
-              },
-            },
           },
         }}
         sx={{
