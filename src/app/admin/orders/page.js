@@ -75,7 +75,10 @@ export default function OrderManagement() {
     setFormState((prev) => ({ ...prev, [name]: value }));
 
   const handleDateChange = (date) =>
-    setFormState((prevState) => ({ ...prevState, orderDate: dayjs(date) }));
+    setFormState((prevState) => ({
+      ...prevState,
+      orderDate: dayjs(date).isValid() ? dayjs(date) : prevState.orderDate,
+    }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -109,12 +112,16 @@ export default function OrderManagement() {
             field: "orderDate",
             headerName: "Order Date",
             width: 150,
-            valueFormatter: (params) =>
-              dayjs(params.value).format("MM/DD/YYYY"),
+            valueFormatter: (params) => dayjs(params).format("MM/DD/YYYY"),
           },
           {
             field: "totalValue",
             headerName: "Total Value",
+            width: 150,
+          },
+          {
+            field: "statusDescription",
+            headerName: "Status",
             width: 150,
           },
         ]}
@@ -161,7 +168,9 @@ export default function OrderManagement() {
             <React.Fragment>
               <GenericDatePicker
                 label="Order Date"
-                value={formState.orderDate}
+                value={
+                  formState.orderDate ? dayjs(formState.orderDate) : dayjs()
+                }
                 onChange={handleDateChange}
               />
               <GenericSelect
