@@ -94,23 +94,23 @@ export default function ClientManagement() {
   const handleDateChange = (date) =>
     setFormState((prevState) => ({
       ...prevState,
-      orderDate: dayjs(date),
+      birthDate: dayjs(date).isValid() ? dayjs(date) : prevState.birthDate,
     }));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const orderData = {
+    const clientData = {
       ...formState,
-      orderDate: formState.orderDate.format("YYYY-MM-DD"),
+      birthDate: formState.birthDate.format("YYYY-MM-DD"),
     };
 
     if (modalType === "create") {
-      await createOrder(orderData);
+      await createClient(clientData);
     } else if (modalType === "edit") {
-      await updateOrder(selectedRowId, orderData);
+      await updateClient(selectedRowId, clientData);
     }
     closeModal();
-    fetchOrders().then(({ data }) => setOrders(data));
+    fetchClients().then(({ data }) => setClients(data));
   };
 
   return (
@@ -221,7 +221,7 @@ export default function ClientManagement() {
               <GenericDatePicker
                 label="Birth Date"
                 value={formState.birthDate}
-                onChange={(date) => handleDateChange("birthDate", date)}
+                onChange={(date) => handleDateChange(date)}
                 disabled={modalType === "view"}
               />
             }
