@@ -1,21 +1,14 @@
-import styles from "./List.module.css";
-import InboxIcon from "@mui/icons-material/Inbox";
-import { List, ListItem, ListItemText, Typography, Box } from "@mui/material";
-import React from "react";
+import styles from './List.module.css';
+import InboxIcon from '@mui/icons-material/Inbox';
+import { List, ListItem, ListItemText, Typography, Box } from '@mui/material';
+import React from 'react';
 
-export default function GenericList({
-  items,
-  primaryText,
-  secondaryText,
-  emptyMessage,
-}) {
+export default function GenericList({ items, primaryText, secondaryText, emptyMessage }) {
   if (!items || items.length === 0) {
     return (
       <Box className={styles.emptyBox}>
         <InboxIcon className={styles.emptyIcon} />
-        <Typography className={styles.emptyMessage}>
-          {emptyMessage || "No items available"}
-        </Typography>
+        <Typography className={styles.emptyMessage}>{emptyMessage || 'No items available'}</Typography>
       </Box>
     );
   }
@@ -23,10 +16,26 @@ export default function GenericList({
   return (
     <List>
       {items.map((item, index) => (
-        <ListItem key={index}>
+        <ListItem key={index} className={styles.listItem}>
           <ListItemText
-            primary={primaryText(item)}
-            secondary={secondaryText && secondaryText(item)}
+            primary={<span className={styles.listItemText}>{primaryText(item)}</span>}
+            secondary={
+              secondaryText && (
+                <span className={styles.listItemTextSecondary}>
+                  {secondaryText(item)
+                    .split(/(\$\d+\.\d{2})/g)
+                    .map((part, i) =>
+                      part.match(/\$\d+\.\d{2}/) ? (
+                        <span key={i} className={styles.priceHighlight}>
+                          {part}
+                        </span>
+                      ) : (
+                        part
+                      )
+                    )}
+                </span>
+              )
+            }
           />
         </ListItem>
       ))}

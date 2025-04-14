@@ -1,97 +1,234 @@
-"use client";
+'use client';
 
-import { fetchClients } from "../../../api/client";
-import {
-  fetchOrders,
-  createOrder,
-  updateOrder,
-  deleteOrder,
-} from "../../../api/order";
-import GenericDataGrid from "../../../components/DataGrid/DataGrid";
-import GenericForm from "../../../components/Form/Form";
-import GenericModal from "../../../components/Modal/Modal";
-import GenericSelect from "../../../components/Select/Select";
-import GenericDatePicker from "@/components/DatePicker/DatePicker";
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Visibility as VisibilityIcon,
-} from "@mui/icons-material";
-import dayjs from "dayjs";
-import React, { useState, useEffect } from "react";
+import { fetchClients } from '@/api/client';
+import { fetchOrders, createOrder, updateOrder, deleteOrder } from '@/api/order';
+import { fetchOrderItemsByOrderId } from '@/api/orderItem';
+import { fetchProducts } from '@/api/product';
+
+import GenericDataGrid from '@/components/DataGrid/DataGrid';
+import GenericDatePicker from '@/components/DatePicker/DatePicker';
+import GenericForm from '@/components/Form/Form';
+import GenericInput from '@/components/Input/Input';
+import GenericList from '@/components/List/List';
+import GenericModal from '@/components/Modal/Modal';
+import GenericSelect from '@/components/Select/Select';
+
+import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import Typography from '@mui/material/Typography';
+
+import dayjs from 'dayjs';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+
+const formatDate = (date) => dayjs(date).format('MM/DD/YYYY');
 
 export default function OrderManagement() {
   const [orders, setOrders] = useState([]);
   const [clients, setClients] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [productMap, setProductMap] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState("");
+  const [modalType, setModalType] = useState('');
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [formState, setFormState] = useState({
-    clientId: "",
+    clientId: '',
     orderDate: dayjs(),
-    totalValue: 0,
+    orderItems: [],
+    totalValue: 0
   });
 
+  const clientMap = useMemo(() => {
+    return clients.reduce((acc, client) => {
+      acc[client.clientId] = client.name;
+      return acc;
+    }, {});
+  }, [clients]);
+
+  const getClientName = useCallback((clientId) => clientMap[clientId] || 'Unknown Client', [clientMap]);
+
   useEffect(() => {
-    fetchClients().then(({ data }) => setClients(data));
-    fetchOrders().then(({ data }) => setOrders(data));
+    Promise.all([fetchClients(), fetchProducts(), fetchOrders()]).then(([clientsRes, productsRes, ordersRes]) => {
+      setClients(clientsRes?.data || []);
+      setProducts(productsRes?.data || []);
+      setOrders(ordersRes?.data || []);
+      const map = (productsRes?.data || []).reduce((acc, product) => {
+        acc[product.productId] = product;
+        return acc;
+      }, {});
+      setProductMap(map);
+    });
   }, []);
+
+  useEffect(() => {
+    if (selectedOrder) {
+      setFormState({
+        ...selectedOrder,
+        orderItems:
+          selectedOrder.orderItems.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitaryPrice: item.unitaryPrice,
+            id: item.orderItemId
+          })) || []
+      });
+    }
+  }, [selectedOrder]);
+
+  const enhancedOrders = useMemo(() => {
+    if (!clients.length) return orders;
+    return orders.map((order) => ({
+      ...order,
+      clientName: getClientName(order.clientId)
+    }));
+  }, [orders, clients, getClientName]);
 
   const openModal = (type, row = {}) => {
     setFormState(row);
     setModalType(type);
     setIsModalOpen(true);
-  };
-
-  const handleCreate = () => openModal("create");
-
-  const handleEdit = () => {
-    const selectedOrder = orders.find(
-      ({ orderId }) => orderId === selectedRowId,
-    );
-    if (selectedOrder) {
-      setFormState(selectedOrder);
-      openModal("edit", selectedOrder);
+    if (type === 'create' && !row.orderItems) {
+      setFormState((prev) => ({ ...prev, orderItems: [] }));
     }
   };
 
-  const handleDelete = async () => {
-    if (selectedRowId) {
-      await deleteOrder(selectedRowId);
-      setOrders((prev) =>
-        prev.filter(({ orderId }) => orderId !== selectedRowId),
-      );
-      setSelectedRowId(null);
+  const handleView = useCallback(async () => {
+    const order = orders.find(({ orderId }) => orderId === selectedRowId);
+    if (order) {
+      const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
+      const enhancedOrder = {
+        ...order,
+        clientName: getClientName(order.clientId),
+        orderItems: orderItemsRes
+      };
+      setSelectedOrder(enhancedOrder);
+      openModal('view', enhancedOrder);
     }
-  };
+  }, [orders, selectedRowId, getClientName]);
 
-  const closeModal = () => {
+  const handleCreate = useCallback(() => openModal('create', {}), []);
+
+  const handleEdit = useCallback(async () => {
+    const order = orders.find(({ orderId }) => orderId === selectedRowId);
+    if (order) {
+      const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
+      const orderItemsFormatted = orderItemsRes
+        .map((item) =>
+          productMap[item.productId]
+            ? { ...item, productName: productMap[item.productId].name, subtotal: item.quantity * item.unitaryPrice }
+            : null
+        )
+        .filter(Boolean);
+
+      const enhancedOrder = {
+        ...order,
+        clientName: getClientName(order.clientId),
+        orderItems: orderItemsFormatted
+      };
+
+      setSelectedOrder(enhancedOrder);
+      setFormState({
+        ...enhancedOrder,
+        orderItems: orderItemsFormatted.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitaryPrice: item.unitaryPrice,
+          id: item.orderItemId
+        }))
+      });
+
+      openModal('edit', enhancedOrder);
+    }
+  }, [orders, selectedRowId, getClientName, productMap]);
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedRowId) return;
+    await deleteOrder(selectedRowId);
+    setOrders((prev) => prev.filter(({ orderId }) => orderId !== selectedRowId));
+    setSelectedRowId(null);
+  }, [selectedRowId]);
+
+  const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRowId(null);
+  }, []);
+
+  const handleInputChange = ({ target: { name, value } }) => {
+    if (name === 'orderItems') {
+      const selectedProductIds = Array.isArray(value) ? value : [value];
+      const selectedProducts = selectedProductIds
+        .map((productId) => productMap[productId])
+        .filter(Boolean)
+        .map((product) => ({
+          productId: product.productId,
+          quantity: 1,
+          unitaryPrice: product.price,
+          subtotal: product.price
+        }));
+      setFormState((prev) => ({ ...prev, orderItems: selectedProducts }));
+    } else {
+      setFormState((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
-  const handleInputChange = ({ target: { name, value } }) =>
-    setFormState((prev) => ({ ...prev, [name]: value }));
+  const handleQuantityChange = (productId, quantity) => {
+    const parsedQuantity = parseInt(quantity, 10);
+    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+      setFormState((prev) => ({
+        ...prev,
+        orderItems: prev.orderItems.filter((item) => item.productId !== productId)
+      }));
+      return;
+    }
+
+    setFormState((prev) => ({
+      ...prev,
+      orderItems: prev.orderItems.map((item) =>
+        item.productId === productId
+          ? { ...item, quantity: parsedQuantity, subtotal: parsedQuantity * item.unitaryPrice }
+          : item
+      )
+    }));
+  };
 
   const handleDateChange = (date) =>
-    setFormState((prevState) => ({
-      ...prevState,
-      orderDate: dayjs(date).isValid() ? dayjs(date) : prevState.orderDate,
+    setFormState((prev) => ({
+      ...prev,
+      orderDate: dayjs(date).isValid() ? dayjs(date) : prev.orderDate
     }));
+
+  const totalValue = useMemo(() => {
+    if (!Array.isArray(formState.orderItems)) {
+      return 0;
+    }
+    return formState.orderItems.reduce((sum, item) => sum + item.quantity * item.unitaryPrice, 0);
+  }, [formState.orderItems]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const orderData = {
       ...formState,
-      orderDate: formState.orderDate.format("YYYY-MM-DD"),
+      orderDate: formState.orderDate ? dayjs(formState.orderDate).format('YYYY-MM-DD') : dayjs().format('YYYY-MM-DD'),
+      totalValue: totalValue,
+      status: formState.status,
+      clientId: formState.clientId,
+      orderItems:
+        formState.orderItems?.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          orderId: modalType === 'edit' ? parseInt(selectedRowId, 10) : 0,
+          quantity: item.quantity,
+          unitaryPrice: item.unitaryPrice,
+          subtotal: item.subtotal
+        })) || []
     };
 
-    if (modalType === "create") {
+    if (modalType === 'create') {
       await createOrder(orderData);
-    } else if (modalType === "edit") {
+    } else if (modalType === 'edit') {
       await updateOrder(selectedRowId, orderData);
     }
+
     closeModal();
     fetchOrders().then(({ data }) => setOrders(data));
   };
@@ -99,31 +236,18 @@ export default function OrderManagement() {
   return (
     <React.Fragment>
       <GenericDataGrid
-        rows={orders.map((order) => ({
-          id: order.orderId,
-          clientName:
-            clients.find((client) => client.clientId === order.clientId)
-              ?.name || "N/A",
-          ...order,
+        rows={enhancedOrders.map(({ orderId, clientName, orderDate, totalValue, statusDescription }) => ({
+          id: orderId,
+          clientName,
+          orderDate: formatDate(orderDate),
+          totalValue,
+          statusDescription
         }))}
         columns={[
-          { field: "clientName", headerName: "Client", width: 150 },
-          {
-            field: "orderDate",
-            headerName: "Order Date",
-            width: 150,
-            valueFormatter: (params) => dayjs(params).format("MM/DD/YYYY"),
-          },
-          {
-            field: "totalValue",
-            headerName: "Total Value",
-            width: 150,
-          },
-          {
-            field: "statusDescription",
-            headerName: "Status",
-            width: 150,
-          },
+          { field: 'clientName', headerName: 'Client', width: 150 },
+          { field: 'orderDate', headerName: 'Order Date', width: 150 },
+          { field: 'totalValue', headerName: 'Total Value', width: 150 },
+          { field: 'statusDescription', headerName: 'Status', width: 150 }
         ]}
         pageSizeOptions={[10, 25, 50]}
         handleCreate={handleCreate}
@@ -132,61 +256,91 @@ export default function OrderManagement() {
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
         additionalActions={[
-          { label: "Create", icon: <EditIcon />, onClick: handleCreate },
-          {
-            label: "Edit",
-            icon: <EditIcon />,
-            onClick: handleEdit,
-            needsSelection: true,
-          },
-          {
-            label: "Delete",
-            icon: <DeleteIcon />,
-            onClick: handleDelete,
-            needsSelection: true,
-          },
+          { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
+          { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
+          { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
+          { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
         ]}
       />
       <GenericModal
         open={isModalOpen}
         handleClose={closeModal}
-        title={modalType === "edit" ? "Edit Order" : "Create Order"}
+        title={modalType === 'edit' ? 'Edit Order' : modalType === 'view' ? 'View Order' : 'Create Order'}
       >
-        <GenericForm
-          formState={formState}
-          handleInputChange={handleInputChange}
-          handleDateChange={handleDateChange}
-          handleSubmit={handleSubmit}
-          fields={[
-            {
-              name: "totalValue",
-              label: "Total Value",
-              type: "number",
-            },
-          ]}
-          additionalFields={
-            <React.Fragment>
-              <GenericDatePicker
-                label="Order Date"
-                value={
-                  formState.orderDate ? dayjs(formState.orderDate) : dayjs()
-                }
-                onChange={handleDateChange}
-              />
-              <GenericSelect
-                label="Client"
-                name="clientId"
-                value={formState.clientId}
-                onChange={handleInputChange}
-                options={clients.map((client) => ({
-                  value: client.clientId,
-                  label: client.name,
+        {modalType === 'view' ? (
+          <div>
+            <Typography variant='h6'>Client: {selectedOrder?.clientName}</Typography>
+            <Typography variant='h6'>Order Date: {formatDate(selectedOrder?.orderDate)}</Typography>
+            <Typography variant='h6'>Total Value: ${selectedOrder?.totalValue?.toFixed(2)}</Typography>
+            <Typography variant='h6'>Status: {selectedOrder?.statusDescription}</Typography>
+            <Typography variant='h6'>Items:</Typography>
+            {selectedOrder?.orderItems && selectedOrder.orderItems.length > 0 ? (
+              <GenericList
+                items={selectedOrder?.orderItems.map((item) => ({
+                  key: item.orderItemId,
+                  id: item.orderItemId,
+                  productName: item.productName,
+                  description: `${item.productName} x${item.quantity} - $${item.unitaryPrice.toFixed(2)} (Subtotal: $${item.subtotal.toFixed(2)})`
                 }))}
+                primaryText={(item) => item.productName}
+                secondaryText={(item) => item.description}
+                emptyMessage='No items found for this order.'
               />
-            </React.Fragment>
-          }
-          submitLabel={modalType === "edit" ? "Update" : "Create"}
-        />
+            ) : (
+              <Typography variant='h6'>No items found for this order.</Typography>
+            )}
+          </div>
+        ) : (
+          <GenericForm
+            formState={formState}
+            handleInputChange={handleInputChange}
+            handleDateChange={handleDateChange}
+            handleSubmit={handleSubmit}
+            fields={[{ name: 'totalValue', label: 'Total Value', type: 'number', readOnly: true }]}
+            additionalFields={
+              <React.Fragment>
+                <GenericDatePicker label='Order Date' value={dayjs(formState.orderDate)} onChange={handleDateChange} />
+                <GenericSelect
+                  label='Client'
+                  name='clientId'
+                  value={formState.clientId || ''}
+                  onChange={handleInputChange}
+                  options={clients.map(({ clientId, name }) => ({ value: clientId, label: name }))}
+                />
+                <GenericSelect
+                  label='Products'
+                  name='orderItems'
+                  value={formState.orderItems?.map((item) => item.productId) || []}
+                  onChange={handleInputChange}
+                  options={products.map(({ productId, name }) => ({
+                    value: productId,
+                    label: name
+                  }))}
+                  multiple
+                  renderValue={(selected) => {
+                    const selectedItems = products.filter((product) => selected.includes(product.productId));
+                    return selectedItems.map((item) => <span key={item.productId}>{item.name}</span>);
+                  }}
+                />
+                {formState.orderItems?.map((item, index) => {
+                  const product = productMap[item.productId];
+                  return (
+                    <div key={`order-item-${item.productId || index}`}>
+                      <GenericInput
+                        label={`${product ? product.name : 'Unknown product'}`}
+                        value={item.quantity || 1}
+                        onChange={(e) => handleQuantityChange(item.productId, e.target.value)}
+                        type='number'
+                        min={1}
+                      />
+                    </div>
+                  );
+                })}
+              </React.Fragment>
+            }
+            submitLabel={modalType === 'edit' ? 'Update' : 'Create'}
+          />
+        )}
       </GenericModal>
     </React.Fragment>
   );

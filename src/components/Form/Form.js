@@ -1,8 +1,8 @@
-import styles from "./Form.module.css";
-import { Button, TextField } from "@mui/material";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import React from "react";
+import styles from './Form.module.css';
+import { Button, TextField } from '@mui/material';
+import { LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import React from 'react';
 
 export default function GenericForm({
   formState,
@@ -10,7 +10,7 @@ export default function GenericForm({
   handleSubmit,
   fields,
   submitLabel,
-  additionalFields,
+  additionalFields
 }) {
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -20,28 +20,24 @@ export default function GenericForm({
             key={field.name}
             name={field.name}
             label={field.label}
-            value={formState[field.name]}
+            value={formState[field.name] ?? ''}
             onChange={handleInputChange}
             fullWidth
             multiline={field.multiline}
             rows={field.rows || 1}
+            type={field.type || 'text'}
             InputLabelProps={{
-              style: { color: "#ffffff" },
+              style: { color: '#ffffff' }
             }}
             InputProps={{
-              className: styles.formField,
+              className: styles.formField
             }}
-            sx={{ marginTop: "10px" }}
+            sx={{ marginTop: '10px' }}
           />
         ))}
         {additionalFields}
       </LocalizationProvider>
-      <Button
-        type="submit"
-        variant="contained"
-        color="primary"
-        className={styles.submitButton}
-      >
+      <Button type='submit' variant='contained' color='primary' className={styles.submitButton}>
         {submitLabel}
       </Button>
     </form>

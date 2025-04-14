@@ -5,6 +5,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   margin-top: 40px;
 }
 
@@ -18,4 +19,20 @@
   color: #ffffff;
   font-size: 18px;
   font-weight: 500;
+}
+
+.listItem {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+}
+
+.listItemTextSecondary {
+  color: #b0b0b0;
+  font-size: 14px;
+}
+
+.priceHighlight {
+  color: yellow;
+  font-weight: bold;
 }
