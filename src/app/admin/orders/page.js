@@ -1,9 +1,9 @@
 'use client';
 
-import { fetchClients } from '@/api/client';
-import { fetchOrders, createOrder, updateOrder, deleteOrder, generateOrderCsvReport } from '@/api/order';
-import { fetchOrderItemsByOrderId } from '@/api/orderItem';
-import { fetchProducts } from '@/api/product';
+import { clientService } from '@/api/clientService';
+import { fetchOrderItemsByOrderId } from '@/api/orderItemService';
+import { orderService } from '@/api/orderService';
+import { fetchProducts } from '@/api/productService';
 
 import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericDatePicker from '@/components/DatePicker/DatePicker';
@@ -27,6 +27,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 const formatDate = (date) => dayjs(date).format('MM/DD/YYYY');
 
 export default function OrderManagement() {
+  const { fetchAll, create, update, remove, generateOrderCsvReport } = orderService();
   const [orders, setOrders] = useState([]);
   const [clients, setClients] = useState([]);
   const [products, setProducts] = useState([]);
@@ -52,16 +53,18 @@ export default function OrderManagement() {
   const getClientName = useCallback((clientId) => clientMap[clientId] || 'Unknown Client', [clientMap]);
 
   useEffect(() => {
-    Promise.all([fetchClients(), fetchProducts(), fetchOrders()]).then(([clientsRes, productsRes, ordersRes]) => {
-      setClients(clientsRes?.data || []);
-      setProducts(productsRes?.data || []);
-      setOrders(ordersRes?.data || []);
-      const map = (productsRes?.data || []).reduce((acc, product) => {
-        acc[product.productId] = product;
-        return acc;
-      }, {});
-      setProductMap(map);
-    });
+    Promise.all([clientService.fetchAll(), fetchProducts(), fetchAll()]).then(
+      ([clientsRes, productsRes, ordersRes]) => {
+        setClients(clientsRes?.data || []);
+        setProducts(productsRes?.data || []);
+        setOrders(ordersRes?.data || []);
+        const map = (productsRes?.data || []).reduce((acc, product) => {
+          acc[product.productId] = product;
+          return acc;
+        }, {});
+        setProductMap(map);
+      }
+    );
   }, []);
 
   useEffect(() => {
@@ -147,7 +150,7 @@ export default function OrderManagement() {
 
   const handleDelete = useCallback(async () => {
     if (!selectedRowId) return;
-    await deleteOrder(selectedRowId);
+    await remove(selectedRowId);
     setOrders((prev) => prev.filter(({ orderId }) => orderId !== selectedRowId));
     setSelectedRowId(null);
   }, [selectedRowId]);
@@ -229,13 +232,13 @@ export default function OrderManagement() {
     };
 
     if (modalType === 'create') {
-      await createOrder(orderData);
+      await create(orderData);
     } else if (modalType === 'edit') {
-      await updateOrder(selectedRowId, orderData);
+      await update(selectedRowId, orderData);
     }
 
     closeModal();
-    fetchOrders().then(({ data }) => setOrders(data));
+    fetchAll().then(({ data }) => setOrders(data));
   };
 
   return (
@@ -261,7 +264,12 @@ export default function OrderManagement() {
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
         additionalActions={[
-          { label: 'Export', icon: <FileDownloadIcon />, onClick: generateOrderCsvReport, needsSelection: false },
+          {
+            label: 'Export',
+            icon: <FileDownloadIcon />,
+            onClick: generateOrderCsvReport,
+            needsSelection: false
+          },
           { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
           { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
           { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
