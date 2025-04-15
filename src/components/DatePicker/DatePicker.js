@@ -1,15 +1,10 @@
-import styles from "./DatePicker.module.css";
-import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import dayjs from "dayjs";
-import React from "react";
+import styles from './DatePicker.module.css';
+import { DatePicker, LocalizationProvider } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
+import React from 'react';
 
-export default function GenericDatePicker({
-  label,
-  value,
-  onChange,
-  disabled = false,
-}) {
+export default function GenericDatePicker({ label, value, onChange, disabled = false }) {
   const handleDateChange = (newDate) => {
     onChange(newDate ? dayjs(newDate) : null);
   };
@@ -24,21 +19,21 @@ export default function GenericDatePicker({
         slotProps={{
           textField: {
             InputProps: {
-              className: styles.inputBase,
+              className: styles.inputBase
             },
             InputLabelProps: {
-              className: styles.inputLabel,
+              className: styles.inputLabel
             },
             classes: {
-              root: styles.outlinedInputRoot,
-            },
-          },
+              root: styles.outlinedInputRoot
+            }
+          }
         }}
         sx={{
-          marginTop: "10px",
-          ".MuiSvgIcon-root": {
-            color: "#ffffff",
-          },
+          marginTop: '10px',
+          '.MuiSvgIcon-root': {
+            color: '#ffffff'
+          }
         }}
       />
     </LocalizationProvider>

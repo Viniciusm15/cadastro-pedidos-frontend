@@ -1,4 +1,4 @@
-import styles from "./Table.module.css";
+import styles from './Table.module.css';
 import {
   Table,
   TableBody,
@@ -7,9 +7,9 @@ import {
   TableRow,
   IconButton,
   TableFooter,
-  TablePagination,
-} from "@mui/material";
-import React from "react";
+  TablePagination
+} from '@mui/material';
+import React from 'react';
 
 export default function GenericTable({
   headers,
@@ -19,7 +19,7 @@ export default function GenericTable({
   pageSize,
   totalCount,
   onPageChange,
-  onPageSizeChange,
+  onPageSizeChange
 }) {
   return (
     <Table className={styles.table}>
@@ -30,9 +30,7 @@ export default function GenericTable({
               {header}
             </TableCell>
           ))}
-          {actions && (
-            <TableCell className={styles.tableCell}>actions</TableCell>
-          )}
+          {actions && <TableCell className={styles.tableCell}>actions</TableCell>}
         </TableRow>
       </TableHead>
       <TableBody>
@@ -46,10 +44,7 @@ export default function GenericTable({
             {actions && (
               <TableCell>
                 {actions.map((action, actionIndex) => (
-                  <IconButton
-                    key={actionIndex}
-                    onClick={() => action.onClick(row)}
-                  >
+                  <IconButton key={actionIndex} onClick={() => action.onClick(row)}>
                     {action.icon}
                   </IconButton>
                 ))}
@@ -66,13 +61,11 @@ export default function GenericTable({
             page={page - 1}
             onPageChange={(event, newPage) => onPageChange(newPage + 1)}
             rowsPerPage={pageSize}
-            onRowsPerPageChange={(event) =>
-              onPageSizeChange(parseInt(event.target.value, 10))
-            }
+            onRowsPerPageChange={(event) => onPageSizeChange(parseInt(event.target.value, 10))}
             sx={{
-              ".MuiTablePagination-selectIcon": {
-                color: "#ffffff",
-              },
+              '.MuiTablePagination-selectIcon': {
+                color: '#ffffff'
+              }
             }}
           />
         </TableRow>

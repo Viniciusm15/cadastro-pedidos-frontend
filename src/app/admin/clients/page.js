@@ -1,14 +1,18 @@
 'use client';
 
-import GenericDataGrid from '../../../components/DataGrid/DataGrid';
-import GenericDatePicker from '../../../components/DatePicker/DatePicker';
-import GenericForm from '../../../components/Form/Form';
-import GenericList from '../../../components/List/List';
-import GenericModal from '../../../components/Modal/Modal';
-import styles from '../../../styles/base/pages/clientManagement.module.css';
 import { clientService } from '@/api/clientService';
+
+import GenericDataGrid from '@/components/DataGrid/DataGrid';
+import GenericDatePicker from '@/components/DatePicker/DatePicker';
+import GenericForm from '@/components/Form/Form';
+import GenericList from '@/components/List/List';
+import GenericModal from '@/components/Modal/Modal';
+
+import styles from '@/styles/base/pages/clientManagement.module.css';
+
 import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import Typography from '@mui/material/Typography';
+
 import dayjs from 'dayjs';
 import React, { useState, useEffect } from 'react';
 

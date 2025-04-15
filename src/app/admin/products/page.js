@@ -1,13 +1,16 @@
 'use client';
 
-import GenericDataGrid from '../../../components/DataGrid/DataGrid';
-import GenericFileUploadButton from '../../../components/FileUploadButton/FileUploadButton';
-import GenericForm from '../../../components/Form/Form';
-import GenericModal from '../../../components/Modal/Modal';
-import GenericSelect from '../../../components/Select/Select';
 import { categoryService } from '@/api/categoryService';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '@/api/productService';
+
+import GenericDataGrid from '@/components/DataGrid/DataGrid';
+import GenericFileUploadButton from '@/components/FileUploadButton/FileUploadButton';
+import GenericForm from '@/components/Form/Form';
+import GenericModal from '@/components/Modal/Modal';
+import GenericSelect from '@/components/Select/Select';
+
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+
 import React, { useState, useEffect } from 'react';
 
 export default function ProductManagement() {

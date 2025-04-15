@@ -1,10 +1,13 @@
 'use client';
 
-import GenericDataGrid from '../../../components/DataGrid/DataGrid';
-import GenericForm from '../../../components/Form/Form';
-import GenericModal from '../../../components/Modal/Modal';
 import { categoryService } from '@/api/categoryService';
+
+import GenericDataGrid from '@/components/DataGrid/DataGrid';
+import GenericForm from '@/components/Form/Form';
+import GenericModal from '@/components/Modal/Modal';
+
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+
 import React, { useState, useEffect } from 'react';
 
 export default function CategoryManagement() {

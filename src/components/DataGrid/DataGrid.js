@@ -1,7 +1,7 @@
-import CustomToolbar from "../CustomToolbar/CustomToolbar";
-import styles from "./DataGrid.module.css";
-import { DataGrid } from "@mui/x-data-grid";
-import { useState } from "react";
+import styles from './DataGrid.module.css';
+import CustomToolbar from '@/components/CustomToolbar/CustomToolbar';
+import { DataGrid } from '@mui/x-data-grid';
+import { useState } from 'react';
 
 export default function GenericDataGrid({
   rows,
@@ -10,7 +10,7 @@ export default function GenericDataGrid({
   selectedRowId,
   setSelectedRowId,
   additionalActions = [],
-  sx,
+  sx
 }) {
   const [pageSize, setPageSize] = useState(pageSizeOptions[0]);
 
@@ -27,43 +27,37 @@ export default function GenericDataGrid({
         setSelectedRowId(newSelection.length ? newSelection[0] : null);
       }}
       slots={{
-        toolbar: () => (
-          <CustomToolbar
-            actions={additionalActions}
-            selectedRowId={selectedRowId}
-          />
-        ),
+        toolbar: () => <CustomToolbar actions={additionalActions} selectedRowId={selectedRowId} />
       }}
       sx={{
-        "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']":
-          {
-            backgroundColor: "#121212",
-          },
-        "& .MuiDataGrid-iconButtonContainer": {
-          color: "#fff",
+        "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']": {
+          backgroundColor: '#121212'
         },
-        "& .MuiTablePagination-root": {
-          color: "#fff",
+        '& .MuiDataGrid-iconButtonContainer': {
+          color: '#fff'
         },
-        "& .MuiTablePagination-selectIcon": {
-          color: "#fff",
+        '& .MuiTablePagination-root': {
+          color: '#fff'
         },
-        "& .MuiTablePagination-actions .MuiSvgIcon-root": {
-          color: "#fff",
+        '& .MuiTablePagination-selectIcon': {
+          color: '#fff'
         },
-        "& .MuiDataGrid-menuIconButton": {
-          color: "#fff",
+        '& .MuiTablePagination-actions .MuiSvgIcon-root': {
+          color: '#fff'
         },
-        "& .MuiDataGrid-sortIcon": {
-          color: "#fff",
+        '& .MuiDataGrid-menuIconButton': {
+          color: '#fff'
         },
-        "& .MuiTablePagination-root .MuiSvgIcon-root": {
-          color: "#fff",
+        '& .MuiDataGrid-sortIcon': {
+          color: '#fff'
         },
-        "& .MuiSelect-icon": {
-          color: "#fff",
+        '& .MuiTablePagination-root .MuiSvgIcon-root': {
+          color: '#fff'
         },
-        ...sx,
+        '& .MuiSelect-icon': {
+          color: '#fff'
+        },
+        ...sx
       }}
     />
   );
