@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from 'axios';
 
 const apiUrl = process.env.NEXT_PUBLIC_BACK_END_URL;
 
@@ -6,7 +6,7 @@ export const fetchOrders = async (pageNumber = 1, pageSize = 10) => {
   try {
     const response = await axios.get(`${apiUrl}/api/Order`, {
       params: { pageNumber, pageSize },
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json' }
     });
 
     const { items, totalCount } = response.data;
@@ -47,6 +47,24 @@ export const deleteOrder = async (id) => {
   try {
     await axios.delete(`${apiUrl}/api/Order/${id}`);
   } catch (error) {
+    throw error;
+  }
+};
+
+export const generateOrderCsvReport = async () => {
+  try {
+    const response = await axios.get(`${apiUrl}/api/Order/generate-csv-report`, {
+      responseType: 'arraybuffer',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const blob = new Blob([response.data], { type: 'text/csv' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Order_Report.csv';
+    link.click();
+  } catch (error) {
+    console.error('Erro ao gerar relatório CSV:', error);
     throw error;
   }
 };

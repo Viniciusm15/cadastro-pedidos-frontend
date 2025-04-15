@@ -1,7 +1,7 @@
 'use client';
 
 import { fetchClients } from '@/api/client';
-import { fetchOrders, createOrder, updateOrder, deleteOrder } from '@/api/order';
+import { fetchOrders, createOrder, updateOrder, deleteOrder, generateOrderCsvReport } from '@/api/order';
 import { fetchOrderItemsByOrderId } from '@/api/orderItem';
 import { fetchProducts } from '@/api/product';
 
@@ -13,7 +13,12 @@ import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
 import GenericSelect from '@/components/Select/Select';
 
-import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import {
+  Delete as DeleteIcon,
+  Edit as EditIcon,
+  Visibility as VisibilityIcon,
+  FileDownload as FileDownloadIcon
+} from '@mui/icons-material';
 import Typography from '@mui/material/Typography';
 
 import dayjs from 'dayjs';
@@ -256,6 +261,7 @@ export default function OrderManagement() {
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
         additionalActions={[
+          { label: 'Export', icon: <FileDownloadIcon />, onClick: generateOrderCsvReport, needsSelection: false },
           { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
           { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
           { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
