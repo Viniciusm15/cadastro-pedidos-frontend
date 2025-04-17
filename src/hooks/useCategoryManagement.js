@@ -1,10 +1,12 @@
 import { categoryService } from '@/api/categoryService';
+import { categorySchema } from '@/schemas/categorySchema';
 import { useState, useEffect } from 'react';
 
 export const useCategoryManagement = () => {
   const [categories, setCategories] = useState([]);
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [formState, setFormState] = useState({ name: '', description: '', productCount: 0 });
+  const [formErrors, setFormErrors] = useState({});
   const [modalType, setModalType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -39,13 +41,28 @@ export const useCategoryManagement = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (modalType === 'create') {
-      await categoryService.create(formState);
-    } else {
-      await categoryService.update(selectedRowId, formState);
+
+    try {
+      await categorySchema.validate(formState, { abortEarly: false });
+      setFormErrors({});
+
+      if (modalType === 'create') {
+        await categoryService.create(formState);
+      } else {
+        await categoryService.update(selectedRowId, formState);
+      }
+
+      setIsModalOpen(false);
+      await fetchCategories();
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const errors = {};
+        err.inner.forEach((validationError) => {
+          errors[validationError.path] = validationError.message;
+        });
+        setFormErrors(errors);
+      }
     }
-    setIsModalOpen(false);
-    await fetchCategories();
   };
 
   const handleInputChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
@@ -62,6 +79,7 @@ export const useCategoryManagement = () => {
     handleEdit,
     handleDelete,
     handleSubmit,
+    formErrors,
     handleCloseModal: () => {
       setIsModalOpen(false);
       setSelectedRowId(null);

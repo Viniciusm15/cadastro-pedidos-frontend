@@ -1,4 +1,5 @@
 import { clientService } from '@/api/clientService';
+import { clientSchema } from '@/schemas/clientSchema';
 import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 
@@ -14,6 +15,7 @@ export default function useClientManagement() {
     telephone: '',
     birthDate: dayjs()
   });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchClients();
@@ -73,18 +75,33 @@ export default function useClientManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     const clientData = {
       ...formState,
       birthDate: formState.birthDate.format('YYYY-MM-DD')
     };
 
-    if (modalType === 'create') {
-      await clientService.create(clientData);
-    } else if (modalType === 'edit') {
-      await clientService.update(selectedRowId, clientData);
+    try {
+      await clientSchema.validate(formState, { abortEarly: false });
+      setFormErrors({});
+
+      if (modalType === 'create') {
+        await clientService.create(clientData);
+      } else if (modalType === 'edit') {
+        await clientService.update(selectedRowId, clientData);
+      }
+
+      closeModal();
+      fetchClients();
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const errors = {};
+        err.inner.forEach((validationError) => {
+          errors[validationError.path] = validationError.message;
+        });
+        setFormErrors(errors);
+      }
     }
-    closeModal();
-    fetchClients();
   };
 
   return {
@@ -102,6 +119,7 @@ export default function useClientManagement() {
     handleInputChange,
     handleDateChange,
     handleSubmit,
+    formErrors,
     closeModal
   };
 }

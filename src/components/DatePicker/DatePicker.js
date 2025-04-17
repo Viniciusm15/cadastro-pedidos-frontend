@@ -4,7 +4,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import dayjs from 'dayjs';
 import React from 'react';
 
-export default function GenericDatePicker({ label, value, onChange, disabled = false }) {
+export default function GenericDatePicker({ label, value, onChange, disabled = false, error }) {
   const handleDateChange = (newDate) => {
     onChange(newDate ? dayjs(newDate) : null);
   };
@@ -18,6 +18,8 @@ export default function GenericDatePicker({ label, value, onChange, disabled = f
         disabled={disabled}
         slotProps={{
           textField: {
+            error: !!error,
+            helperText: error || '',
             InputProps: {
               className: styles.inputBase
             },

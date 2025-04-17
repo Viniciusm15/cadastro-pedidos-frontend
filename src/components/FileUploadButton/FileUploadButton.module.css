@@ -37,3 +37,14 @@
 .fileLabel:hover {
   background-color: #0056b3;
 }
+
+.errorMessage {
+  color: red;
+  font-size: 0.875rem;
+  margin-top: 4px;
+  display: block;
+}
+
+.errorInput {
+  border-color: red;
+}

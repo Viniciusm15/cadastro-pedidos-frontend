@@ -23,6 +23,7 @@ export default function ClientManagement() {
     selectedRowId,
     selectedClient,
     formState,
+    formErrors,
     setSelectedRowId,
     handleCreate,
     handleEdit,
@@ -110,8 +111,10 @@ export default function ClientManagement() {
                 value={formState.birthDate || null}
                 onChange={handleDateChange}
                 disabled={modalType === 'view'}
+                error={formErrors.birthDate}
               />
             }
+            formErrors={formErrors}
             submitLabel={modalType === 'edit' ? 'Update' : modalType === 'view' ? 'Close' : 'Create'}
           />
         )}

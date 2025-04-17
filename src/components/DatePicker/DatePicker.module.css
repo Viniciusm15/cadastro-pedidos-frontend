@@ -2,8 +2,17 @@
   color: #ffffff;
 }
 
+.inputBase.Mui-error {
+  border-color: red;
+  color: red;
+}
+
 .inputLabel {
   color: #ffffff;
+}
+
+.inputLabel.Mui-error {
+  color: red;
 }
 
 .svgIcon {

@@ -10,7 +10,8 @@ export default function GenericForm({
   handleSubmit,
   fields,
   submitLabel,
-  additionalFields
+  additionalFields,
+  formErrors = {}
 }) {
   return (
     <form onSubmit={handleSubmit} className={styles.form}>
@@ -33,10 +34,13 @@ export default function GenericForm({
               className: styles.formField
             }}
             sx={{ marginTop: '10px' }}
+            error={Boolean(formErrors[field.name])}
+            helperText={formErrors[field.name] || ''}
           />
         ))}
         {additionalFields}
       </LocalizationProvider>
+
       <Button type='submit' variant='contained' color='primary' className={styles.submitButton}>
         {submitLabel}
       </Button>

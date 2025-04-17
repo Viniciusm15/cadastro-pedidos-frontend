@@ -31,6 +31,7 @@ export default function OrderManagement() {
     modalType,
     selectedOrder,
     formState,
+    formErrors,
     clients,
     products,
     productMap,
@@ -77,7 +78,6 @@ export default function OrderManagement() {
           { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
         ]}
       />
-
       <GenericModal
         open={isModalOpen}
         handleClose={closeModal}
@@ -115,7 +115,12 @@ export default function OrderManagement() {
             fields={[{ name: 'totalValue', label: 'Total Value', type: 'number', readOnly: true }]}
             additionalFields={
               <React.Fragment>
-                <GenericDatePicker label='Order Date' value={dayjs(formState.orderDate)} onChange={handleDateChange} />
+                <GenericDatePicker
+                  label='Order Date'
+                  value={dayjs(formState.orderDate)}
+                  onChange={handleDateChange}
+                  error={formErrors.orderDate}
+                />
                 <GenericSelect
                   label='Client'
                   name='clientId'
@@ -125,6 +130,7 @@ export default function OrderManagement() {
                     value: clientId,
                     label: name
                   }))}
+                  error={formErrors.clientId}
                 />
                 <GenericSelect
                   label='Products'
@@ -135,6 +141,7 @@ export default function OrderManagement() {
                     value: productId,
                     label: name
                   }))}
+                  error={formErrors.orderItems}
                   multiple
                   renderValue={(selected) => {
                     const selectedItems = products.filter((product) => selected.includes(product.productId));
@@ -157,6 +164,7 @@ export default function OrderManagement() {
                 })}
               </React.Fragment>
             }
+            formErrors={formErrors}
             submitLabel={modalType === 'edit' ? 'Update' : 'Create'}
           />
         )}

@@ -15,6 +15,7 @@ export default function CategoryManagement() {
     selectedRowId,
     setSelectedRowId,
     formState,
+    formErrors,
     handleInputChange,
     isModalOpen,
     modalType,
@@ -63,6 +64,7 @@ export default function CategoryManagement() {
             { name: 'name', label: 'Name', type: 'text' },
             { name: 'description', label: 'Description', type: 'text' }
           ]}
+          formErrors={formErrors}
           submitLabel={modalType === 'edit' ? 'Update' : 'Create'}
         />
       </GenericModal>

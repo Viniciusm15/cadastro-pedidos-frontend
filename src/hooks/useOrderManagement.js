@@ -2,6 +2,7 @@ import { clientService } from '@/api/clientService';
 import { fetchOrderItemsByOrderId } from '@/api/orderItemService';
 import { orderService } from '@/api/orderService';
 import { fetchProducts } from '@/api/productService';
+import { orderSchema } from '@/schemas/orderSchema';
 import dayjs from 'dayjs';
 import { useEffect, useState, useMemo, useCallback } from 'react';
 
@@ -22,6 +23,7 @@ export default function useOrderManagement() {
     orderItems: [],
     totalValue: 0
   });
+  const [formErrors, setFormErrors] = useState({});
 
   const clientMap = useMemo(() => {
     return clients.reduce((acc, client) => {
@@ -228,15 +230,28 @@ export default function useOrderManagement() {
         })) || []
     };
 
-    if (modalType === 'create') {
-      await create(orderData);
-    } else if (modalType === 'edit') {
-      await update(selectedRowId, orderData);
-    }
+    try {
+      await orderSchema.validate(formState, { abortEarly: false });
+      setFormErrors({});
 
-    closeModal();
-    const { data } = await fetchAll();
-    setOrders(data);
+      if (modalType === 'create') {
+        await create(orderData);
+      } else if (modalType === 'edit') {
+        await update(selectedRowId, orderData);
+      }
+
+      closeModal();
+      const { data } = await fetchAll();
+      setOrders(data);
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const errors = {};
+        err.inner.forEach((validationError) => {
+          errors[validationError.path] = validationError.message;
+        });
+        setFormErrors(errors);
+      }
+    }
   };
 
   return {
@@ -259,6 +274,7 @@ export default function useOrderManagement() {
     handleQuantityChange,
     handleDateChange,
     handleSubmit,
+    formErrors,
     closeModal,
     generateOrderCsvReport
   };

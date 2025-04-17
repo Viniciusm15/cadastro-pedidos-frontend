@@ -1,5 +1,6 @@
 import { categoryService } from '@/api/categoryService';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '@/api/productService';
+import { productSchema } from '@/schemas/productSchema';
 import { useState, useEffect } from 'react';
 
 export function useProductManagement() {
@@ -16,6 +17,7 @@ export function useProductManagement() {
     categoryId: '',
     image: null
   });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     fetchProducts(1, 10).then(({ data }) => setProducts(data));
@@ -93,13 +95,28 @@ export function useProductManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (modalType === 'create') {
-      await createProduct(formState);
-    } else if (modalType === 'edit') {
-      await updateProduct(selectedRowId, formState);
+
+    try {
+      await productSchema.validate(formState, { abortEarly: false });
+      setFormErrors({});
+
+      if (modalType === 'create') {
+        await createProduct(formState);
+      } else if (modalType === 'edit') {
+        await updateProduct(selectedRowId, formState);
+      }
+
+      setIsModalOpen(false);
+      fetchProducts(1, 10).then(({ data }) => setProducts(data));
+    } catch (err) {
+      if (err.name === 'ValidationError') {
+        const errors = {};
+        err.inner.forEach((validationError) => {
+          errors[validationError.path] = validationError.message;
+        });
+        setFormErrors(errors);
+      }
     }
-    setIsModalOpen(false);
-    fetchProducts(1, 10).then(({ data }) => setProducts(data));
   };
 
   return {
@@ -117,6 +134,7 @@ export function useProductManagement() {
     handleCloseModal,
     handleInputChange,
     handleFileUpload,
-    handleSubmit
+    handleSubmit,
+    formErrors
   };
 }

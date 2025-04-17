@@ -20,6 +20,7 @@ export default function ProductManagement() {
     modalType,
     selectedRowId,
     formState,
+    formErrors,
     setSelectedRowId,
     handleCreate,
     handleEdit,
@@ -84,10 +85,17 @@ export default function ProductManagement() {
                   value: category.categoryId,
                   label: category.name
                 }))}
+                error={formErrors.categoryId}
               />
-              <GenericFileUploadButton onUpload={handleFileUpload} accept='image/*' buttonText='Upload Product Image' />
+              <GenericFileUploadButton
+                onUpload={handleFileUpload}
+                accept='image/*'
+                buttonText='Upload Product Image'
+                error={formErrors.image}
+              />
             </React.Fragment>
           }
+          formErrors={formErrors}
           submitLabel={modalType === 'edit' ? 'Update' : 'Create'}
         />
       </GenericModal>
