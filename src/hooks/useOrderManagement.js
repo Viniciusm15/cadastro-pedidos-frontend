@@ -156,7 +156,19 @@ export default function useOrderManagement() {
           unitaryPrice: product.price,
           subtotal: product.price
         }));
-      setFormState((prev) => ({ ...prev, orderItems: selectedProducts }));
+
+      // Combina os produtos selecionados com os já existentes
+      setFormState((prev) => {
+        const updatedOrderItems = [...prev.orderItems];
+        selectedProducts.forEach((newProduct) => {
+          const existingProduct = updatedOrderItems.find((item) => item.productId === newProduct.productId);
+
+          if (!existingProduct) {
+            updatedOrderItems.push(newProduct); // Adiciona se não existir
+          }
+        });
+        return { ...prev, orderItems: updatedOrderItems };
+      });
     } else {
       setFormState((prev) => ({ ...prev, [name]: value }));
     }
