@@ -22,17 +22,19 @@ export default function GenericList({ items, primaryText, secondaryText, emptyMe
             secondary={
               secondaryText && (
                 <span className={styles.listItemTextSecondary}>
-                  {secondaryText(item)
-                    .split(/(\$\d+\.\d{2})/g)
-                    .map((part, i) =>
-                      part.match(/\$\d+\.\d{2}/) ? (
-                        <span key={i} className={styles.priceHighlight}>
-                          {part}
-                        </span>
-                      ) : (
-                        part
-                      )
-                    )}
+                  {typeof secondaryText(item) === 'string'
+                    ? secondaryText(item)
+                        .split(/(\$\d+\.\d{2})/g)
+                        .map((part, i) =>
+                          part.match(/\$\d+\.\d{2}/) ? (
+                            <span key={i} className={styles.priceHighlight}>
+                              {part}
+                            </span>
+                          ) : (
+                            part
+                          )
+                        )
+                    : secondaryText(item)}
                 </span>
               )
             }

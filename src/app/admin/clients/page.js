@@ -1,7 +1,5 @@
 'use client';
 
-import { clientService } from '@/api/clientService';
-
 import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericDatePicker from '@/components/DatePicker/DatePicker';
 import GenericForm from '@/components/Form/Form';
@@ -13,89 +11,28 @@ import styles from '@/styles/base/pages/clientManagement.module.css';
 import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 import Typography from '@mui/material/Typography';
 
+import useClientManagement from '@/hooks/useClientManagement';
 import dayjs from 'dayjs';
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 export default function ClientManagement() {
-  const [clients, setClients] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [selectedRowId, setSelectedRowId] = useState(null);
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    telephone: '',
-    birthDate: dayjs()
-  });
-
-  useEffect(() => {
-    clientService.fetchAll().then(({ data }) => setClients(data));
-  }, []);
-
-  const openModal = (type, row = {}) => {
-    setFormState({
-      ...row,
-      orderDate: row.orderDate ? dayjs(row.orderDate) : dayjs()
-    });
-    setModalType(type);
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => openModal('create');
-
-  const handleActionWithSelectedClient = (action) => {
-    const selectedClient = clients.find(({ clientId }) => clientId === selectedRowId);
-    if (selectedClient) {
-      setSelectedClient(selectedClient);
-      const clientData = {
-        ...selectedClient,
-        birthDate: dayjs(selectedClient.birthDate)
-      };
-      action(clientData);
-    }
-  };
-
-  const handleEdit = () => handleActionWithSelectedClient((clientData) => openModal('edit', clientData));
-
-  const handleView = () => handleActionWithSelectedClient((clientData) => openModal('view', clientData));
-
-  const handleDelete = async () => {
-    if (selectedRowId) {
-      await clientService.remove(selectedRowId);
-      setClients((prev) => prev.filter(({ clientId }) => clientId !== selectedRowId));
-      setSelectedRowId(null);
-    }
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-    setSelectedRowId(null);
-  };
-
-  const handleInputChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
-
-  const handleDateChange = (date) =>
-    setFormState((prevState) => ({
-      ...prevState,
-      birthDate: date && dayjs(date).isValid() ? dayjs(date) : prevState.birthDate
-    }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const clientData = {
-      ...formState,
-      birthDate: formState.birthDate.format('YYYY-MM-DD')
-    };
-
-    if (modalType === 'create') {
-      await clientService.create(clientData);
-    } else if (modalType === 'edit') {
-      await clientService.update(selectedRowId, clientData);
-    }
-    closeModal();
-    clientService.fetchAll().then(({ data }) => setClients(data));
-  };
+  const {
+    clients,
+    isModalOpen,
+    modalType,
+    selectedRowId,
+    selectedClient,
+    formState,
+    setSelectedRowId,
+    handleCreate,
+    handleEdit,
+    handleView,
+    handleDelete,
+    closeModal,
+    handleInputChange,
+    handleDateChange,
+    handleSubmit
+  } = useClientManagement();
 
   return (
     <React.Fragment>
@@ -120,26 +57,12 @@ export default function ClientManagement() {
         selectedRowId={selectedRowId}
         additionalActions={[
           { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
-          {
-            label: 'View',
-            icon: <VisibilityIcon />,
-            onClick: handleView,
-            needsSelection: true
-          },
-          {
-            label: 'Edit',
-            icon: <EditIcon />,
-            onClick: handleEdit,
-            needsSelection: true
-          },
-          {
-            label: 'Delete',
-            icon: <DeleteIcon />,
-            onClick: handleDelete,
-            needsSelection: true
-          }
+          { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
+          { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
+          { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
         ]}
       />
+
       <GenericModal
         open={isModalOpen}
         handleClose={closeModal}
@@ -176,30 +99,15 @@ export default function ClientManagement() {
             handleDateChange={handleDateChange}
             handleSubmit={modalType === 'view' ? closeModal : handleSubmit}
             fields={[
-              {
-                name: 'name',
-                label: 'Client Name',
-                type: 'text',
-                disabled: modalType === 'view'
-              },
-              {
-                name: 'email',
-                label: 'Email',
-                type: 'text',
-                disabled: modalType === 'view'
-              },
-              {
-                name: 'telephone',
-                label: 'Telephone',
-                type: 'text',
-                disabled: modalType === 'view'
-              }
+              { name: 'name', label: 'Client Name', type: 'text', disabled: modalType === 'view' },
+              { name: 'email', label: 'Email', type: 'text', disabled: modalType === 'view' },
+              { name: 'telephone', label: 'Telephone', type: 'text', disabled: modalType === 'view' }
             ]}
             additionalFields={
               <GenericDatePicker
                 label='Birth Date'
-                value={formState.birthDate ? formState.birthDate : null}
-                onChange={(date) => handleDateChange(date)}
+                value={formState.birthDate || null}
+                onChange={handleDateChange}
                 disabled={modalType === 'view'}
               />
             }

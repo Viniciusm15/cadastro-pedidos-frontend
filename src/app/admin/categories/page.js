@@ -1,6 +1,7 @@
 'use client';
 
-import { categoryService } from '@/api/categoryService';
+import { useCategoryManagement } from '@/hooks/useCategoryManagement';
+import React from 'react';
 
 import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericForm from '@/components/Form/Form';
@@ -8,67 +9,21 @@ import GenericModal from '@/components/Modal/Modal';
 
 import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 
-import React, { useState, useEffect } from 'react';
-
 export default function CategoryManagement() {
-  const [categories, setCategories] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [selectedRowId, setSelectedRowId] = useState(null);
-  const [formState, setFormState] = useState({
-    name: '',
-    description: '',
-    productCount: 0
-  });
-
-  useEffect(() => {
-    categoryService.fetchAll().then(({ data }) => setCategories(data));
-  }, []);
-
-  const handleOpenModal = (type, row = { name: '', description: '' }) => {
-    setFormState(row);
-    setModalType(type);
-    setIsModalOpen(true);
-  };
-
-  const handleCreate = () => handleOpenModal('create');
-
-  const handleEdit = () => {
-    if (selectedRowId) {
-      const selectedRow = categories.find(({ categoryId }) => categoryId === selectedRowId);
-      if (selectedRow) {
-        handleOpenModal('edit', selectedRow);
-      }
-    }
-  };
-
-  const handleDelete = async () => {
-    if (selectedRowId) {
-      await categoryService.remove(selectedRowId);
-      categoryService.fetchAll().then(({ data }) => {
-        setCategories(data);
-        setSelectedRowId(null);
-      });
-    }
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedRowId(null);
-  };
-
-  const handleInputChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (modalType === 'create') {
-      await categoryService.create(formState);
-    } else if (modalType === 'edit') {
-      await categoryService.update(selectedRowId, formState);
-    }
-    setIsModalOpen(false);
-    categoryService.fetchAll().then(({ data }) => setCategories(data));
-  };
+  const {
+    categories,
+    selectedRowId,
+    setSelectedRowId,
+    formState,
+    handleInputChange,
+    isModalOpen,
+    modalType,
+    handleCreate,
+    handleEdit,
+    handleDelete,
+    handleSubmit,
+    handleCloseModal
+  } = useCategoryManagement();
 
   return (
     <React.Fragment>
@@ -90,18 +45,8 @@ export default function CategoryManagement() {
         selectedRowId={selectedRowId}
         additionalActions={[
           { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
-          {
-            label: 'Edit',
-            icon: <EditIcon />,
-            onClick: handleEdit,
-            needsSelection: true
-          },
-          {
-            label: 'Delete',
-            icon: <DeleteIcon />,
-            onClick: handleDelete,
-            needsSelection: true
-          }
+          { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
+          { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
         ]}
       />
       <GenericModal
