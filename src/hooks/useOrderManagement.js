@@ -157,14 +157,13 @@ export default function useOrderManagement() {
           subtotal: product.price
         }));
 
-      // Combina os produtos selecionados com os já existentes
       setFormState((prev) => {
         const updatedOrderItems = [...prev.orderItems];
         selectedProducts.forEach((newProduct) => {
           const existingProduct = updatedOrderItems.find((item) => item.productId === newProduct.productId);
 
           if (!existingProduct) {
-            updatedOrderItems.push(newProduct); // Adiciona se não existir
+            updatedOrderItems.push(newProduct);
           }
         });
         return { ...prev, orderItems: updatedOrderItems };
