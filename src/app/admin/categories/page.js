@@ -28,6 +28,7 @@ export default function CategoryManagement() {
   return (
     <React.Fragment>
       <GenericDataGrid
+        key={categories.length}
         rows={categories.map((category) => ({
           id: category.categoryId,
           ...category

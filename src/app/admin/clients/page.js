@@ -37,6 +37,7 @@ export default function ClientManagement() {
   return (
     <React.Fragment>
       <GenericDataGrid
+        key={clients.length}
         rows={clients.map((client) => ({ id: client.clientId, ...client }))}
         columns={[
           { field: 'name', headerName: 'Name', width: 150 },

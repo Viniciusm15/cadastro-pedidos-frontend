@@ -49,6 +49,7 @@ export default function OrderManagement() {
   return (
     <React.Fragment>
       <GenericDataGrid
+        key={orders.length}
         rows={orders.map(({ orderId, clientName, orderDate, totalValue, statusDescription }) => ({
           id: orderId,
           clientName,

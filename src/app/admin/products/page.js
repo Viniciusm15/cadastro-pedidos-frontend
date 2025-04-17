@@ -33,6 +33,7 @@ export default function ProductManagement() {
   return (
     <React.Fragment>
       <GenericDataGrid
+        key={products.length}
         rows={products.map((product) => ({
           id: product.productId,
           categoryName: categories.find((cat) => cat.categoryId === product.categoryId)?.name || 'N/A',
