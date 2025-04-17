@@ -18,12 +18,23 @@ export default function useOrderManagement() {
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [formState, setFormState] = useState({
-    clientId: '',
+    clientId: null,
     orderDate: dayjs(),
     orderItems: [],
     totalValue: 0
   });
   const [formErrors, setFormErrors] = useState({});
+
+  const resetForm = useCallback(() => {
+    setFormState({
+      clientId: null,
+      orderDate: dayjs(),
+      orderItems: [],
+      totalValue: 0
+    });
+    setFormErrors({});
+    setSelectedOrder(null);
+  }, []);
 
   const clientMap = useMemo(() => {
     return clients.reduce((acc, client) => {
@@ -72,19 +83,38 @@ export default function useOrderManagement() {
     }));
   }, [orders, clients, getClientName]);
 
-  const openModal = (type, row = {}) => {
-    setFormState(row);
-    setModalType(type);
-    setIsModalOpen(true);
-    if (type === 'create' && !row.orderItems) {
-      setFormState((prev) => ({ ...prev, orderItems: [] }));
-    }
-  };
+  const openModal = useCallback(
+    (type, row = null) => {
+      setFormErrors({});
+
+      if (type === 'create') {
+        resetForm();
+      } else if (row) {
+        setFormState({
+          clientId: row.clientId,
+          orderDate: dayjs(row.orderDate),
+          orderItems:
+            row.orderItems?.map((item) => ({
+              productId: item.productId,
+              quantity: item.quantity,
+              unitaryPrice: item.unitaryPrice,
+              id: item.orderItemId || item.id
+            })) || [],
+          totalValue: row.totalValue || 0
+        });
+      }
+
+      setModalType(type);
+      setIsModalOpen(true);
+    },
+    [resetForm]
+  );
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRowId(null);
-  }, []);
+    resetForm();
+  }, [resetForm]);
 
   const handleView = useCallback(async () => {
     const order = orders.find(({ orderId }) => orderId === selectedRowId);
@@ -100,7 +130,10 @@ export default function useOrderManagement() {
     }
   }, [orders, selectedRowId, getClientName]);
 
-  const handleCreate = useCallback(() => openModal('create', {}), []);
+  const handleCreate = useCallback(() => {
+    resetForm();
+    openModal('create');
+  }, [openModal, resetForm]);
 
   const handleEdit = useCallback(async () => {
     const order = orders.find(({ orderId }) => orderId === selectedRowId);

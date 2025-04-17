@@ -26,6 +26,9 @@ export default function GenericDatePicker({ label, value, onChange, disabled = f
             InputLabelProps: {
               className: styles.inputLabel
             },
+            FormHelperTextProps: {
+              className: styles.helperText
+            },
             classes: {
               root: styles.outlinedInputRoot
             }

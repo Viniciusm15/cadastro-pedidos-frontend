@@ -27,10 +27,22 @@ export default function useClientManagement() {
   };
 
   const openModal = (type, row = {}) => {
-    setFormState({
-      ...row,
-      birthDate: row.birthDate ? dayjs(row.birthDate) : dayjs()
-    });
+    setFormErrors({});
+
+    if (type === 'create') {
+      setFormState({
+        name: '',
+        email: '',
+        telephone: '',
+        birthDate: dayjs()
+      });
+    } else {
+      setFormState({
+        ...row,
+        birthDate: row.birthDate ? dayjs(row.birthDate) : dayjs()
+      });
+    }
+
     setModalType(type);
     setIsModalOpen(true);
   };
@@ -38,6 +50,13 @@ export default function useClientManagement() {
   const closeModal = () => {
     setIsModalOpen(false);
     setSelectedRowId(null);
+    setFormState({
+      name: '',
+      email: '',
+      telephone: '',
+      birthDate: dayjs()
+    });
+    setFormErrors({});
   };
 
   const handleCreate = () => openModal('create');

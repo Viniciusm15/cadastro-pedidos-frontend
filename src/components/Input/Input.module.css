@@ -1,8 +1,8 @@
 .inputField {
-  color: #ffffff;
-  background-color: #333333;
+  color: #ffffff !important;
+  background-color: transparent !important;
+  font-size: 1rem;
 }
-
 .form input::-webkit-outer-spin-button,
 .form input::-webkit-inner-spin-button {
   -webkit-appearance: none;

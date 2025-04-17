@@ -3,7 +3,7 @@ import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { Select, MenuItem, InputLabel, FormControl, FormHelperText, Checkbox, ListItemText } from '@mui/material';
 import React from 'react';
 
-export default function GenericSelect({ label, name, value, options, onChange, multiple, renderValue, error }) {
+export default function GenericSelect({ label = '', name, value, options, onChange, multiple, renderValue, error }) {
   const handleSelectChange = (event) => {
     const selectedValues = event.target.value;
     onChange({
@@ -16,7 +16,9 @@ export default function GenericSelect({ label, name, value, options, onChange, m
 
   return (
     <FormControl fullWidth className={styles.formControl} error={!!error}>
-      <InputLabel className={styles.inputLabel}>{label}</InputLabel>
+      <InputLabel className={styles.inputLabel} sx={{ color: '#ffffff !important' }}>
+        {label}
+      </InputLabel>
       <Select
         name={name}
         value={value}
@@ -25,11 +27,15 @@ export default function GenericSelect({ label, name, value, options, onChange, m
         className={styles.select}
         IconComponent={ArrowDropDownIcon}
         renderValue={renderValue}
+        label={label}
         sx={{
           color: '#ffffff',
           '& .MuiSelect-icon': {
             color: '#ffffff',
             fontSize: '1.5rem'
+          },
+          '& .MuiInputLabel-root.Mui-focused': {
+            color: '#ffffff !important'
           }
         }}
       >
@@ -46,7 +52,7 @@ export default function GenericSelect({ label, name, value, options, onChange, m
           </MenuItem>
         ))}
       </Select>
-      {error && <FormHelperText>{error}</FormHelperText>}
+      {error && <FormHelperText className={styles.helperText}>{error}</FormHelperText>}
     </FormControl>
   );
 }

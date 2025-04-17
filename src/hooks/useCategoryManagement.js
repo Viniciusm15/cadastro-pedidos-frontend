@@ -5,7 +5,11 @@ import { useState, useEffect } from 'react';
 export const useCategoryManagement = () => {
   const [categories, setCategories] = useState([]);
   const [selectedRowId, setSelectedRowId] = useState(null);
-  const [formState, setFormState] = useState({ name: '', description: '', productCount: 0 });
+  const [formState, setFormState] = useState({
+    name: '',
+    description: '',
+    productCount: 0
+  });
   const [formErrors, setFormErrors] = useState({});
   const [modalType, setModalType] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,8 +23,28 @@ export const useCategoryManagement = () => {
     fetchCategories();
   }, []);
 
-  const handleOpenModal = (type, row = { name: '', description: '' }) => {
-    setFormState(row);
+  const resetForm = () => {
+    setFormState({
+      name: '',
+      description: '',
+      productCount: 0
+    });
+    setFormErrors({});
+  };
+
+  const handleOpenModal = (type, row = null) => {
+    setFormErrors({});
+
+    if (type === 'create') {
+      resetForm();
+    } else if (row) {
+      setFormState({
+        name: row.name,
+        description: row.description,
+        productCount: row.productCount || 0
+      });
+    }
+
     setModalType(type);
     setIsModalOpen(true);
   };
@@ -65,7 +89,15 @@ export const useCategoryManagement = () => {
     }
   };
 
-  const handleInputChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
+  const handleInputChange = ({ target: { name, value } }) => {
+    setFormState((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedRowId(null);
+    resetForm();
+  };
 
   return {
     categories,
@@ -80,9 +112,6 @@ export const useCategoryManagement = () => {
     handleDelete,
     handleSubmit,
     formErrors,
-    handleCloseModal: () => {
-      setIsModalOpen(false);
-      setSelectedRowId(null);
-    }
+    handleCloseModal
   };
 };

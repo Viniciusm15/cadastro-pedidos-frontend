@@ -17,7 +17,6 @@ export const orderService = () => {
       link.download = 'Order_Report.csv';
       link.click();
     } catch (error) {
-      console.error('Erro ao gerar relatório CSV:', error);
       throw error;
     }
   };

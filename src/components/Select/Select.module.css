@@ -1,8 +1,32 @@
 .formControl {
   margin-top: 10px;
+  width: 100%;
 }
 
-.inputLabel,
+.inputLabel {
+  color: #ffffff !important;
+  transition: all 0.2s ease-out;
+}
+
 .select {
   color: #ffffff;
+  border-radius: 4px !important;
+  transition: all 0.3s ease;
+}
+
+.inputLabel.Mui-focused {
+  color: #ffffff !important;
+  transform: translate(14px, -9px) scale(0.75);
+}
+
+.helperText {
+  margin-left: 0;
+  margin-right: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.helperText.Mui-error {
+  color: #f44336 !important;
 }

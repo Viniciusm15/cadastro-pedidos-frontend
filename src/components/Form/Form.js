@@ -28,20 +28,28 @@ export default function GenericForm({
             rows={field.rows || 1}
             type={field.type || 'text'}
             InputLabelProps={{
-              style: { color: '#ffffff' }
+              className: styles.inputLabel
             }}
             InputProps={{
-              className: styles.formField
+              className: `${styles.inputField} ${field.type === 'number' ? styles.numberInput : ''}`
             }}
-            sx={{ marginTop: '10px' }}
+            sx={{
+              marginTop: '16px',
+              '& .MuiInputBase-input': {
+                padding: field.type === 'number' ? '8px 0 8px 8px' : '8px 0'
+              }
+            }}
             error={Boolean(formErrors[field.name])}
             helperText={formErrors[field.name] || ''}
+            FormHelperTextProps={{
+              className: styles.helperText
+            }}
           />
         ))}
         {additionalFields}
       </LocalizationProvider>
 
-      <Button type='submit' variant='contained' color='primary' className={styles.submitButton}>
+      <Button type='submit' variant='contained' className={styles.submitButton}>
         {submitLabel}
       </Button>
     </form>

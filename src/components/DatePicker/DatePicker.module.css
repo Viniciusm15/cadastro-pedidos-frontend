@@ -8,7 +8,7 @@
 }
 
 .inputLabel {
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .inputLabel.Mui-error {
@@ -25,4 +25,16 @@
 
 .outlinedInputRoot.Mui-focused fieldset {
   border-color: #1976d2;
+}
+
+.helperText {
+  margin-left: 0;
+  margin-right: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.helperText.Mui-error {
+  color: #f44336 !important;
 }

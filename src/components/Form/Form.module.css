@@ -1,21 +1,116 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
+  width: 100%;
+  padding: 8px 0;
 }
 
-.formField {
-  color: #ffffff;
-  background-color: #333333;
+.inputLabel {
+  color: #ffffff !important;
+  font-size: 0.95rem;
+  transform-origin: top left;
+}
+
+.inputField {
+  color: #ffffff !important;
+  background-color: transparent !important;
+  padding: 8px 0 !important;
+  font-size: 1rem;
+}
+
+.inputField input,
+.inputField textarea {
+  padding-left: 16px !important;
+}
+
+.inputField .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.23) !important;
+}
+
+.inputField:hover .MuiOutlinedInput-notchedOutline {
+  border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.inputField.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-width: 1px !important;
+}
+
+.helperText {
+  margin-left: 0;
+  margin-right: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+.helperText.Mui-error {
+  color: #f44336 !important;
 }
 
 .submitButton {
-  margin-top: 10px;
-  font-size: 16px;
+  background-color: #1976d2 !important;
+  color: white !important;
+  padding: 12px 24px !important;
+  font-size: 1rem !important;
+  font-weight: 500 !important;
+  text-transform: uppercase !important;
+  border-radius: 4px !important;
+  margin-top: 24px !important;
+  width: 100%;
+}
+
+.submitButton:hover {
+  background-color: #1565c0 !important;
+  box-shadow: none !important;
 }
 
 .form input::-webkit-outer-spin-button,
 .form input::-webkit-inner-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.form input[type='number'] {
+  -moz-appearance: textfield;
+}
+
+.inputField input[type='number'] {
+  padding-left: 16px !important;
+  text-align: left !important;
+}
+
+.numberInput input {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  margin: 0;
+}
+
+.numberInput::-webkit-inner-spin-button,
+.numberInput::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.MuiInputBase-input {
+  align-items: center;
+  display: flex !important;
+}
+
+.inputField .MuiInputBase-input {
+  min-height: 24px;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+@media (max-width: 600px) {
+  .inputField input,
+  .inputField textarea {
+    padding: 10px 0 !important;
+    font-size: 0.95rem !important;
+  }
+
+  .submitButton {
+    padding: 10px 20px !important;
+  }
 }
