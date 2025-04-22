@@ -21,18 +21,22 @@
 
 .inputField input,
 .inputField textarea {
+  color: #fff !important;
   padding-left: 16px !important;
 }
 
 .inputField .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(255, 255, 255, 0.23) !important;
+  border-color: #fff !important;
+  border-width: 1px !important;
 }
 
 .inputField:hover .MuiOutlinedInput-notchedOutline {
-  border-color: rgba(255, 255, 255, 0.5) !important;
+  border-color: #fff !important;
+  border-width: 1px !important;
 }
 
 .inputField.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #fff !important;
   border-width: 1px !important;
 }
 
@@ -49,7 +53,7 @@
 }
 
 .submitButton {
-  background-color: #1976d2 !important;
+  background-color: #262f37 !important;
   color: white !important;
   padding: 12px 24px !important;
   font-size: 1rem !important;
@@ -61,7 +65,7 @@
 }
 
 .submitButton:hover {
-  background-color: #1565c0 !important;
+  background-color: #141619 !important;
   box-shadow: none !important;
 }
 

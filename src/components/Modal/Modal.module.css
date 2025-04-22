@@ -5,8 +5,8 @@
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 650px;
-  background-color: #2a2a2a;
-  border: 1px solid #444;
+  background-color: #121212;
+  border: 1px solid #2f2f2f;
   padding: 0;
   outline: none;
   box-shadow:
@@ -21,8 +21,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background-color: #1e1e1e;
-  border-bottom: 1px solid #444;
+  background-color: #141619;
+  border-bottom: 1px solid #2f2f2f;
 }
 
 .modalTitle {

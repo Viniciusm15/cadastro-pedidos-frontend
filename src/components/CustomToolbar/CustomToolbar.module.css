@@ -1,16 +1,16 @@
 .customToolbar {
   display: flex;
   justify-content: flex-end;
-  background-color: #0f1214;
+  background-color: #121212;
   padding: 10px;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid #fff;
 }
 
 .toolbarButton {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #444;
+  background-color: #262f37;
   color: #fff;
   border: none;
   border-radius: 15px;
@@ -21,11 +21,11 @@
 }
 
 .toolbarButton:hover {
-  background-color: #555;
+  background-color: #141619;
 }
 
 .toolbarButton:disabled {
-  background-color: #666;
+  background-color: #141619;
   cursor: not-allowed;
 }
 

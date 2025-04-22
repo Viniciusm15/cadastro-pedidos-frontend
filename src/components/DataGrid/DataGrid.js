@@ -33,6 +33,15 @@ export default function GenericDataGrid({
         "& .MuiDataGrid-container--top [role='row'], & .MuiDataGrid-container--bottom [role='row']": {
           backgroundColor: '#121212'
         },
+        '& .MuiDataGrid-row': {
+          backgroundColor: '#121212',
+          '&.Mui-selected': {
+            backgroundColor: '#262f37',
+            '&:hover': {
+              backgroundColor: '#262f37'
+            }
+          }
+        },
         '& .MuiDataGrid-iconButtonContainer': {
           color: '#fff'
         },

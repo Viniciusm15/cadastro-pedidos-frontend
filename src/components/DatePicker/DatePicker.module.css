@@ -20,11 +20,11 @@
 }
 
 .outlinedInputRoot:hover fieldset {
-  border-color: #1976d2;
+  border-color: #262f37;
 }
 
 .outlinedInputRoot.Mui-focused fieldset {
-  border-color: #1976d2;
+  border-color: #262f37;
 }
 
 .helperText {

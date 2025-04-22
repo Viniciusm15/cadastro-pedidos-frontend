@@ -31,7 +31,20 @@ export default function GenericForm({
               className: styles.inputLabel
             }}
             InputProps={{
-              className: `${styles.inputField} ${field.type === 'number' ? styles.numberInput : ''}`
+              className: `${styles.inputField} ${field.type === 'number' ? styles.numberInput : ''}`,
+              sx: {
+                '& .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#2f2f2f'
+                },
+                '&:hover .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#262f37',
+                  borderWidth: '1px '
+                },
+                '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+                  borderColor: '#262f37',
+                  borderWidth: '1px'
+                }
+              }
             }}
             sx={{
               marginTop: '16px',

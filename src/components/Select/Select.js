@@ -30,6 +30,17 @@ export default function GenericSelect({ label = '', name, value, options, onChan
         label={label}
         sx={{
           color: '#ffffff',
+          '& .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#2f2f2f'
+          },
+          '&:hover .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#262f37'
+          },
+          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
+            borderColor: '#262f37',
+            borderWidth: '1px'
+          },
+          color: '#ffffff',
           '& .MuiSelect-icon': {
             color: '#ffffff',
             fontSize: '1.5rem'

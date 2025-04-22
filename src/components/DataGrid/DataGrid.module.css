@@ -1,7 +1,7 @@
 .dataGrid {
-  background-color: #0f1214;
+  background-color: #121212;
   color: #fff;
-  border: 1px solid #333;
+  border: 1px solid #2f2f2f;
   overflow-x: auto;
   max-width: 1870px;
 }
