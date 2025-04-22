@@ -6,7 +6,7 @@
 .drawerPaper {
   width: 240px;
   box-sizing: border-box;
-  background-color: #48494f;
+  background-color: #141619;
 }
 
 .icon,
@@ -15,14 +15,14 @@
 }
 
 .divider {
-  background-color: #6c6c72;
+  background-color: #2f2f2f;
 }
 
 .selectedMenuItem {
-  background-color: #1d1c23;
+  background-color: #262f37;
   font-weight: bold;
 }
 
 .listItemButton:hover {
-  background-color: #6c6c72;
+  background-color: #262f37;
 }

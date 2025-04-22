@@ -70,8 +70,8 @@ export default function AdminLayout({ children }) {
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <AppBar position='fixed' open={state.open} sx={{ backgroundColor: '#48494f' }}>
-        <Toolbar sx={{ backgroundColor: '#48494f' }}>
+      <AppBar position='fixed' open={state.open} sx={{ backgroundColor: '#141619' }}>
+        <Toolbar sx={{ backgroundColor: '#141619' }}>
           <IconButton
             color='inherit'
             aria-label='open drawer'
