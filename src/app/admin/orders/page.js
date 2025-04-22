@@ -95,7 +95,7 @@ export default function OrderManagement() {
         {modalType === 'view' ? (
           <React.Fragment>
             <GenericView title='Order Information' items={orderInfoItems} />
-            <GenericHeader title='Order Itens' count={selectedOrder?.orderItems?.length || 0} />
+            <GenericHeader title='Order Items' count={selectedOrder?.orderItems?.length || 0} />
 
             <GenericList
               items={selectedOrder?.orderItems}

@@ -7,7 +7,7 @@ export default function GenericHeader({ title, count }) {
       <Typography variant='h6' className={styles.sectionTitle}>
         {title}
       </Typography>
-      {count !== undefined && `${count} orders`}
+      {count !== undefined && `${count} items`}
     </header>
   );
 }
