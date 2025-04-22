@@ -1,38 +1,59 @@
-.emptyBox {
-  padding: 20px;
-  text-align: center;
+.list {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  padding: 8px;
+}
+
+.listItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #fff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  border-left: 3px solid #3f51b5;
+}
+
+.listItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.listItemText {
+  font-weight: 500;
+  color: #2c3e50;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.listItemTextSecondary {
+  display: flex;
+  gap: 16px;
+  color: #666;
+  font-size: 0.875rem;
+}
+
+.emptyState {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
-  margin-top: 40px;
+  padding: 40px 20px;
+  border-radius: 12px;
+  text-align: center;
 }
 
-.emptyIcon {
+.emptyState .emptyIcon {
   font-size: 48px;
-  color: #757575;
+  color: #bdbdbd;
   margin-bottom: 16px;
 }
 
-.emptyMessage {
+.emptyState .emptyText {
   color: #ffffff;
-  font-size: 18px;
-  font-weight: 500;
-}
-
-.listItem {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-  padding-bottom: 8px;
-  margin-bottom: 8px;
-}
-
-.listItemTextSecondary {
-  color: #b0b0b0;
-  font-size: 14px;
-}
-
-.priceHighlight {
-  color: yellow;
-  font-weight: bold;
+  font-size: 1rem;
+  max-width: 300px;
 }

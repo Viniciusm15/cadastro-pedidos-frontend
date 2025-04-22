@@ -3,13 +3,12 @@
 import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericDatePicker from '@/components/DatePicker/DatePicker';
 import GenericForm from '@/components/Form/Form';
+import GenericHeader from '@/components/Header/Header';
 import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
-
-import styles from '@/styles/base/pages/clientManagement.module.css';
+import GenericView from '@/components/View/View';
 
 import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
-import Typography from '@mui/material/Typography';
 
 import useClientManagement from '@/hooks/useClientManagement';
 import dayjs from 'dayjs';
@@ -34,6 +33,16 @@ export default function ClientManagement() {
     handleDateChange,
     handleSubmit
   } = useClientManagement();
+
+  const contactInfoItems = [
+    { label: 'Name', value: selectedClient?.name },
+    { label: 'Email', value: selectedClient?.email },
+    { label: 'Telephone', value: selectedClient?.telephone },
+    {
+      label: 'Birth date',
+      value: selectedClient?.birthDate ? dayjs(selectedClient.birthDate).format('MMMM D, YYYY') : null
+    }
+  ];
 
   return (
     <React.Fragment>
@@ -72,26 +81,23 @@ export default function ClientManagement() {
       >
         {modalType === 'view' && selectedClient ? (
           <React.Fragment>
-            <Typography>Name: {selectedClient.name}</Typography>
-            <Typography>Email: {selectedClient.email}</Typography>
+            <GenericView title='Contact Information' items={contactInfoItems} />
+            <GenericHeader title='Purchase History' count={selectedClient.purchaseHistory?.length || 0} />
+
             <GenericList
               items={selectedClient.purchaseHistory}
-              primaryText={(purchase) => `Order ID: ${purchase.orderId}`}
+              primaryText={(purchase) => `Order #${purchase.orderId.toString().padStart(6, '0')}`}
               secondaryText={(purchase) => (
                 <React.Fragment>
-                  <Typography component='span' className={styles.purchaseDate}>
-                    Order Date: {dayjs(purchase.orderDate).format('MM/DD/YYYY')}
-                  </Typography>
-                  <Typography component='span' className={styles.totalValue}>
-                    Total Value:{' '}
+                  {dayjs(purchase.orderDate).format('MMM D, YYYY')}
+                  <span>
                     {purchase.totalValue.toLocaleString('en-US', {
                       style: 'currency',
                       currency: 'USD'
                     })}
-                  </Typography>
+                  </span>
                 </React.Fragment>
               )}
-              emptyMessage='No purchase history available'
             />
           </React.Fragment>
         ) : (

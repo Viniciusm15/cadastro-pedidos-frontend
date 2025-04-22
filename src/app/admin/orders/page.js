@@ -13,10 +13,12 @@ import React from 'react';
 import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericDatePicker from '@/components/DatePicker/DatePicker';
 import GenericForm from '@/components/Form/Form';
+import GenericHeader from '@/components/Header/Header';
 import GenericInput from '@/components/Input/Input';
 import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
 import GenericSelect from '@/components/Select/Select';
+import GenericView from '@/components/View/View';
 
 import useOrderManagement from '@/hooks/useOrderManagement';
 
@@ -46,6 +48,13 @@ export default function OrderManagement() {
     closeModal,
     generateOrderCsvReport
   } = useOrderManagement();
+
+  const orderInfoItems = [
+    { label: 'Client', value: selectedOrder?.clientName },
+    { label: 'Order Date', value: formatDate(selectedOrder?.orderDate) },
+    { label: 'Total Value', value: selectedOrder?.totalValue?.toFixed(2) },
+    { label: 'Status', value: selectedOrder?.statusDescription }
+  ];
 
   return (
     <React.Fragment>
@@ -84,28 +93,20 @@ export default function OrderManagement() {
         title={modalType === 'edit' ? 'Edit Order' : modalType === 'view' ? 'View Order' : 'Create Order'}
       >
         {modalType === 'view' ? (
-          <div>
-            <Typography variant='h6'>Client: {selectedOrder?.clientName}</Typography>
-            <Typography variant='h6'>Order Date: {formatDate(selectedOrder?.orderDate)}</Typography>
-            <Typography variant='h6'>Total Value: ${selectedOrder?.totalValue?.toFixed(2)}</Typography>
-            <Typography variant='h6'>Status: {selectedOrder?.statusDescription}</Typography>
-            <Typography variant='h6'>Items:</Typography>
-            {selectedOrder?.orderItems?.length > 0 ? (
-              <GenericList
-                items={selectedOrder.orderItems.map((item) => ({
-                  key: item.orderItemId,
-                  id: item.orderItemId,
-                  productName: item.productName,
-                  description: `${item.productName} x${item.quantity} - $${item.unitaryPrice.toFixed(2)} (Subtotal: $${item.subtotal.toFixed(2)})`
-                }))}
-                primaryText={(item) => item.productName}
-                secondaryText={(item) => item.description}
-                emptyMessage='No items found for this order.'
-              />
-            ) : (
-              <Typography variant='h6'>No items found for this order.</Typography>
-            )}
-          </div>
+          <React.Fragment>
+            <GenericView title='Order Information' items={orderInfoItems} />
+            <GenericHeader title='Order Itens' count={selectedOrder?.orderItems?.length || 0} />
+
+            <GenericList
+              items={selectedOrder?.orderItems}
+              primaryText={(purchase) => `${purchase.productName} $${purchase.unitaryPrice.toFixed(2)}`}
+              secondaryText={(purchase) => (
+                <React.Fragment>
+                  {purchase.productName} x{purchase.quantity} - Subtotal: ${purchase.subtotal.toFixed(2)}
+                </React.Fragment>
+              )}
+            />
+          </React.Fragment>
         ) : (
           <GenericForm
             formState={formState}
