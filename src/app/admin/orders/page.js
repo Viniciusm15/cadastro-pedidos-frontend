@@ -6,7 +6,6 @@ import {
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon
 } from '@mui/icons-material';
-import Typography from '@mui/material/Typography';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -40,6 +39,7 @@ export default function OrderManagement() {
     handleCreate,
     handleEdit,
     handleView,
+    handleRemoveItem,
     handleDelete,
     handleInputChange,
     handleDateChange,
@@ -133,9 +133,11 @@ export default function OrderManagement() {
                   }))}
                   error={formErrors.clientId}
                 />
+
                 <GenericSelect
                   label='Products'
                   name='orderItems'
+                  multiple
                   value={formState.orderItems?.map((item) => item.productId) || []}
                   onChange={handleInputChange}
                   options={products.map(({ productId, name }) => ({
@@ -143,11 +145,7 @@ export default function OrderManagement() {
                     label: name
                   }))}
                   error={formErrors.orderItems}
-                  multiple
-                  renderValue={(selected) => {
-                    const selectedItems = products.filter((product) => selected.includes(product.productId));
-                    return selectedItems.map((item) => <span key={item.productId}>{item.name}</span>);
-                  }}
+                  onRemoveItem={handleRemoveItem}
                 />
                 {formState.orderItems?.map((item, index) => {
                   const product = productMap[item.productId];

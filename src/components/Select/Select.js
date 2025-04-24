@@ -1,17 +1,60 @@
 import styles from './Select.module.css';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { Select, MenuItem, InputLabel, FormControl, FormHelperText, Checkbox, ListItemText } from '@mui/material';
+import { Select, MenuItem, InputLabel, FormControl, FormHelperText, Checkbox, ListItemText, Chip } from '@mui/material';
 import React from 'react';
 
-export default function GenericSelect({ label = '', name, value, options, onChange, multiple, renderValue, error }) {
+export default function GenericSelect({
+  label = '',
+  name,
+  value,
+  options,
+  onChange,
+  multiple,
+  renderValue,
+  error,
+  onRemoveItem
+}) {
   const handleSelectChange = (event) => {
     const selectedValues = event.target.value;
+
+    if (multiple && Array.isArray(value) && Array.isArray(selectedValues)) {
+      const removedItems = value.filter((item) => !selectedValues.includes(item));
+      if (onRemoveItem && removedItems.length > 0) {
+        removedItems.forEach((item) => onRemoveItem(item));
+      }
+    }
+
     onChange({
       target: {
         name,
         value: selectedValues
       }
     });
+  };
+
+  const defaultRenderValue = (selected) => {
+    if (multiple) {
+      return (
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {selected.map((value) => {
+            const option = options.find((opt) => opt.value === value);
+            return (
+              <Chip
+                key={value}
+                label={option?.label || value}
+                sx={{
+                  color: '#ffffff',
+                  backgroundColor: '#262f37',
+                  cursor: 'default'
+                }}
+              />
+            );
+          })}
+        </div>
+      );
+    }
+    const selectedOption = options.find((opt) => opt.value === selected);
+    return selectedOption?.label || selected;
   };
 
   return (
@@ -26,7 +69,7 @@ export default function GenericSelect({ label = '', name, value, options, onChan
         multiple={multiple}
         className={styles.select}
         IconComponent={ArrowDropDownIcon}
-        renderValue={renderValue}
+        renderValue={renderValue || defaultRenderValue}
         label={label}
         sx={{
           color: '#ffffff',
@@ -40,7 +83,6 @@ export default function GenericSelect({ label = '', name, value, options, onChan
             borderColor: '#262f37',
             borderWidth: '1px'
           },
-          color: '#ffffff',
           '& .MuiSelect-icon': {
             color: '#ffffff',
             fontSize: '1.5rem'
@@ -54,7 +96,7 @@ export default function GenericSelect({ label = '', name, value, options, onChan
           <MenuItem key={option.value} value={option.value}>
             {multiple ? (
               <React.Fragment>
-                <Checkbox checked={value.includes(option.value)} />
+                <Checkbox checked={Array.isArray(value) ? value.includes(option.value) : value === option.value} />
                 <ListItemText primary={option.label} />
               </React.Fragment>
             ) : (

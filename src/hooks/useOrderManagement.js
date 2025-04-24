@@ -208,29 +208,36 @@ export default function useOrderManagement() {
     }
   };
 
-  const handleQuantityChange = (productId, quantity) => {
-    const parsedQuantity = parseInt(quantity, 10);
-    if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
-      setFormState((prev) => ({
-        ...prev,
-        orderItems: prev.orderItems.filter((item) => item.productId !== productId)
-      }));
-      return;
-    }
-
+  const handleRemoveItem = useCallback((productId) => {
     setFormState((prev) => ({
       ...prev,
-      orderItems: prev.orderItems.map((item) =>
-        item.productId === productId
-          ? {
-              ...item,
-              quantity: parsedQuantity,
-              subtotal: parsedQuantity * item.unitaryPrice
-            }
-          : item
-      )
+      orderItems: prev.orderItems.filter((item) => item.productId !== productId)
     }));
-  };
+  }, []);
+
+  const handleQuantityChange = useCallback(
+    (productId, quantity) => {
+      const parsedQuantity = parseInt(quantity, 10);
+      if (isNaN(parsedQuantity) || parsedQuantity <= 0) {
+        handleRemoveItem(productId);
+        return;
+      }
+
+      setFormState((prev) => ({
+        ...prev,
+        orderItems: prev.orderItems.map((item) =>
+          item.productId === productId
+            ? {
+                ...item,
+                quantity: parsedQuantity,
+                subtotal: parsedQuantity * item.unitaryPrice
+              }
+            : item
+        )
+      }));
+    },
+    [handleRemoveItem]
+  );
 
   const handleDateChange = (date) =>
     setFormState((prev) => ({
@@ -303,6 +310,7 @@ export default function useOrderManagement() {
     handleEdit,
     handleDelete,
     handleView,
+    handleRemoveItem,
     handleInputChange,
     handleQuantityChange,
     handleDateChange,
