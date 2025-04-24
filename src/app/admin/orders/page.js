@@ -113,7 +113,7 @@ export default function OrderManagement() {
             handleInputChange={handleInputChange}
             handleDateChange={handleDateChange}
             handleSubmit={handleSubmit}
-            fields={[{ name: 'totalValue', label: 'Total Value', type: 'number', readOnly: true }]}
+            fields={[]}
             additionalFields={
               <React.Fragment>
                 <GenericDatePicker
