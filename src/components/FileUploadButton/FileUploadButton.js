@@ -3,8 +3,8 @@ import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import { Button, Typography } from '@mui/material';
 import React, { useState } from 'react';
 
-export default function FileUploadButton({ onUpload, accept = 'image/*', buttonText = 'Upload Product Image', error }) {
-  const [selectedFile, setSelectedFile] = useState(null);
+export default function FileUploadButton({ onUpload, accept = 'image/*', buttonText = 'Upload Product Image', error, initialFile = null }) {
+  const [selectedFile, setSelectedFile] = useState(initialFile);
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -25,7 +25,7 @@ export default function FileUploadButton({ onUpload, accept = 'image/*', buttonT
           {buttonText}
         </Button>
         {selectedFile && (
-          <Typography variant='body2' className={styles.fileName}>
+          <Typography variant='body2'className={styles.fileName}>
             {selectedFile.name}
           </Typography>
         )}

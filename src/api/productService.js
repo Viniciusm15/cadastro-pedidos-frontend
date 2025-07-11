@@ -48,9 +48,28 @@ export const createProduct = async (data) => {
   }
 };
 
+
 export const updateProduct = async (id, data) => {
   try {
-    const response = await api.put(`/${id}`, data);
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('description', data.description);
+    formData.append('price', data.price);
+    formData.append('stockQuantity', data.stockQuantity);
+    formData.append('categoryId', data.categoryId);
+
+    if (data.image) {
+      formData.append('Image.Description', data.image.description);
+      formData.append('Image.ImageMimeType', data.image.imageMimeType);
+      formData.append('Image.ImageData', data.image.imageData);
+    }
+
+    const response = await api.put(`/${id}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
     return response.data;
   } catch (error) {
     throw error;

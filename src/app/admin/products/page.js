@@ -92,6 +92,7 @@ export default function ProductManagement() {
                 accept='image/*'
                 buttonText='Upload Product Image'
                 error={formErrors.image}
+                initialFile={formState.imageFile}
               />
             </React.Fragment>
           }

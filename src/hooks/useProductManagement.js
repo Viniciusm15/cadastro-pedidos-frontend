@@ -1,5 +1,6 @@
 import { categoryService } from '@/api/categoryService';
 import { fetchProducts, createProduct, updateProduct, deleteProduct } from '@/api/productService';
+import { base64ToFile } from '@/utils/FileUtils';
 import { productSchema } from '@/schemas/productSchema';
 import { useState, useEffect, useCallback } from 'react';
 
@@ -40,23 +41,31 @@ export function useProductManagement() {
   }, []);
 
   const handleOpenModal = useCallback(
-    (type, rowData = null) => {
-      setFormErrors({});
+  (type, rowData = null) => {
+    setFormErrors({});
 
-      if (type === 'create') {
-        resetForm();
-      } else if (rowData) {
-        setFormState({
-          ...INITIAL_FORM_STATE,
-          ...rowData
-        });
-      }
+    let initialFile = null;
+    if (type === 'edit' && rowData?.image) {
+      initialFile = base64ToFile(
+        rowData.image.imageData,
+        rowData.image.description,
+        rowData.image.imageMimeType
+      );
+      
+      handleFileUpload(initialFile);
+    }
 
-      setModalType(type);
-      setIsModalOpen(true);
-    },
-    [resetForm]
-  );
+    setFormState({
+      ...INITIAL_FORM_STATE,
+      ...rowData,
+      imageFile: initialFile
+    });
+
+    setModalType(type);
+    setIsModalOpen(true);
+  },
+  [resetForm]
+);
 
   const handleCreate = useCallback(() => {
     resetForm();
