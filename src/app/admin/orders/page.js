@@ -19,6 +19,7 @@ import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
 import GenericSelect from '@/components/Select/Select';
 import GenericView from '@/components/View/View';
+import { OrderStatusOptions } from '@/enums/OrderStatus';
 
 import useOrderManagement from '@/hooks/useOrderManagement';
 
@@ -134,7 +135,16 @@ export default function OrderManagement() {
                   }))}
                   error={formErrors.clientId}
                 />
-
+                {modalType === 'edit' && (
+                  <GenericSelect
+                    label="Status"
+                    name="status"
+                    value={formState.status || ''}
+                    onChange={handleInputChange}
+                    options={OrderStatusOptions}
+                    error={formErrors.status}
+                  />
+                )}
                 <GenericSelect
                   label='Products'
                   name='orderItems'
