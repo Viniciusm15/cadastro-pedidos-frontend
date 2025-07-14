@@ -26,7 +26,6 @@ export default function GenericInput({ name, label, value, onChange, type = 'tex
       InputProps={{
         className: styles.inputField,
         sx: {
-          marginTop: '10px',
           '& .MuiOutlinedInput-notchedOutline': {
             borderColor: '#2f2f2f'
           },
