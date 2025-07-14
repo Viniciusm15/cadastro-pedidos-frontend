@@ -3,6 +3,7 @@
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
+  Add as AddIcon,
   Visibility as VisibilityIcon,
   FileDownload as FileDownloadIcon
 } from '@mui/icons-material';
@@ -81,7 +82,7 @@ export default function OrderManagement() {
         selectedRowId={selectedRowId}
         additionalActions={[
           { label: 'Export CSV', icon: <FileDownloadIcon />, onClick: generateOrderCsvReport, needsSelection: false },
-          { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
+          { label: 'Create', icon: <AddIcon />, onClick: handleCreate },
           { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
           { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
           { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }

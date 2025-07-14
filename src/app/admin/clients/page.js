@@ -8,7 +8,7 @@ import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
 import GenericView from '@/components/View/View';
 
-import { Delete as DeleteIcon, Edit as EditIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
 
 import useClientManagement from '@/hooks/useClientManagement';
 import dayjs from 'dayjs';
@@ -67,7 +67,7 @@ export default function ClientManagement() {
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
         additionalActions={[
-          { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
+          { label: 'Create', icon: <AddIcon />, onClick: handleCreate },
           { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
           { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
           { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }

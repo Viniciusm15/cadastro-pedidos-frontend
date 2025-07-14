@@ -7,7 +7,7 @@ import GenericDataGrid from '@/components/DataGrid/DataGrid';
 import GenericForm from '@/components/Form/Form';
 import GenericModal from '@/components/Modal/Modal';
 
-import { Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon } from '@mui/icons-material';
 
 export default function CategoryManagement() {
   const {
@@ -46,7 +46,7 @@ export default function CategoryManagement() {
         setSelectedRowId={setSelectedRowId}
         selectedRowId={selectedRowId}
         additionalActions={[
-          { label: 'Create', icon: <EditIcon />, onClick: handleCreate },
+          { label: 'Create', icon: <AddIcon />, onClick: handleCreate },
           { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
           { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
         ]}
