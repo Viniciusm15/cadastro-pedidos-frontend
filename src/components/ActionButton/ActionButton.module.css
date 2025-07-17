@@ -1,0 +1,21 @@
+.button {
+    padding: 6px;
+    min-width: unset;
+    transition: background-color 0.2s ease;
+}
+
+.button:hover {
+    background-color: rgba(0, 0, 0, 0.04);
+}
+
+.button.small {
+    padding: 6px;
+}
+
+.button.medium {
+    padding: 8px;
+}
+
+.button.large {
+    padding: 10px;
+}

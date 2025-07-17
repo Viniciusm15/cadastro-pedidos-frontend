@@ -3,9 +3,9 @@ import { fetchOrderItemsByOrderId } from '@/api/orderItemService';
 import { orderService } from '@/api/orderService';
 import { fetchProducts } from '@/api/productService';
 import { orderSchema } from '@/schemas/orderSchema';
-import dayjs from 'dayjs';
 import { useEffect, useState, useMemo, useCallback } from 'react';
-import { OrderStatus, getStatusDescription, getStatusValue } from '@/enums/OrderStatus';
+import dayjs from 'dayjs';
+import { OrderStatus, getStatusByDescription, getStatusByValue } from '@/enums/OrderStatus';
 
 export default function useOrderManagement() {
   const { fetchAll, create, update, remove, generateOrderCsvReport } = orderService();
@@ -67,7 +67,7 @@ export default function useOrderManagement() {
     if (selectedOrder) {
       setFormState({
         ...selectedOrder,
-        status: getStatusDescription(selectedOrder.status),
+        status: getStatusByDescription(selectedOrder.status),
         orderItems:
           selectedOrder.orderItems.map((item) => ({
             productId: item.productId,
@@ -84,7 +84,7 @@ export default function useOrderManagement() {
     return orders.map((order) => ({
       ...order,
       clientName: getClientName(order.clientId),
-      statusDescription: getStatusDescription(order.status)
+      statusDescription: getStatusByDescription(order.status)
     }));
   }, [orders, clients, getClientName]);
 
@@ -98,7 +98,7 @@ export default function useOrderManagement() {
         setFormState({
           clientId: row.clientId,
           orderDate: dayjs(row.orderDate),
-          status: getStatusDescription(row.status),
+          status: getStatusByDescription(row.status),
           orderItems:
             row.orderItems?.map((item) => ({
               productId: item.productId,
@@ -129,7 +129,7 @@ export default function useOrderManagement() {
       const enhancedOrder = {
         ...order,
         clientName: getClientName(order.clientId),
-        statusDescription: getStatusDescription(order.status),
+        statusDescription: getStatusByDescription(order.status),
         orderItems: orderItemsRes
       };
       setSelectedOrder(enhancedOrder);
@@ -161,14 +161,14 @@ export default function useOrderManagement() {
       const enhancedOrder = {
         ...order,
         clientName: getClientName(order.clientId),
-        statusDescription: getStatusDescription(order.status),
+        statusDescription: getStatusByDescription(order.status),
         orderItems: orderItemsFormatted
       };
 
       setSelectedOrder(enhancedOrder);
       setFormState({
         ...enhancedOrder,
-        status: getStatusDescription(order.status),
+        status: getStatusByDescription(order.status),
         orderItems: orderItemsFormatted.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
@@ -266,7 +266,7 @@ export default function useOrderManagement() {
       ...formState,
       orderDate: dayjs(formState.orderDate).format('YYYY-MM-DD'),
       totalValue,
-      status: getStatusValue(formState.status),
+      status: getStatusByValue(formState.status),
       clientId: formState.clientId,
       orderItems:
         formState.orderItems?.map((item) => ({

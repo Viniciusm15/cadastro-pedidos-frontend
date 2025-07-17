@@ -1,0 +1,15 @@
+.chip {
+    font-size: 0.75rem;
+    font-weight: 500;
+    min-width: 100px;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 16px;
+}
+
+.iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+}

@@ -1,0 +1,60 @@
+.dialogRoot {
+    border-radius: 12px !important;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.dialogTitle {
+    padding: 20px 24px 10px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #2d3748;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.dialogContent {
+    padding: 20px 24px;
+    color: #4a5568;
+}
+
+.dialogActions {
+    padding: 16px 24px;
+    border-top: 1px solid #e2e8f0;
+    gap: 12px;
+}
+
+.primaryButton {
+    background-color: #4f46e5 !important;
+    color: white !important;
+    text-transform: none !important;
+    padding: 8px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.primaryButton:hover {
+    background-color: #4338ca !important;
+    transform: translateY(-1px);
+}
+
+.secondaryButton {
+    color: #4a5568 !important;
+    text-transform: none !important;
+    padding: 8px 20px !important;
+    border-radius: 8px !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.secondaryButton:hover {
+    background-color: #f7fafc !important;
+}
+
+.textField {
+    margin-top: 16px !important;
+}
+
+.textField input {
+    padding: 12px 14px;
+    border-radius: 8px;
+}

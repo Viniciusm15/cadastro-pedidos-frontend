@@ -1,0 +1,14 @@
+.container {
+    padding: 16px;
+    margin-bottom: 32px;
+    border-radius: 8px;
+    margin-top: 24px;
+}
+
+.container .title {
+    margin-bottom: 16px;
+}
+
+.container .chart {
+    height: 300px;
+}

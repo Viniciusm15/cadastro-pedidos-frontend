@@ -1,0 +1,27 @@
+.snackbar {
+    bottom: 24px !important;
+    right: 24px !important;
+}
+
+.alert {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    font-weight: 500;
+    align-items: center;
+}
+
+.alertSuccess {
+    background-color: #38a169 !important;
+}
+
+.alertError {
+    background-color: #e53e3e !important;
+}
+
+.alertWarning {
+    background-color: #dd6b20 !important;
+}
+
+.alertInfo {
+    background-color: #3182ce !important;
+}
