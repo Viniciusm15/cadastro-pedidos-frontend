@@ -5,14 +5,14 @@
   transform: translate(-50%, -50%);
   width: 90%;
   max-width: 650px;
-  background-color: #121212;
-  border: 1px solid #2f2f2f;
+  background-color: #fff;
+  border: 1px solid #fff;
   padding: 0;
   outline: none;
   box-shadow:
-    0 10px 25px rgba(0, 0, 0, 0.3),
-    0 5px 10px rgba(0, 0, 0, 0.2);
-  border-radius: 12px;
+    0 10px 25px rgba(0, 0, 0, 0.5),
+    0 5px 10px rgba(0, 0, 0, 0.3);
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -20,71 +20,36 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px;
-  background-color: #141619;
-  border-bottom: 1px solid #2f2f2f;
+  padding: 18px 24px;
+  background-color: #1e293b;
+  border-bottom: 1px solid #fff;
 }
 
 .modalTitle {
-  font-size: 1.4rem;
+  font-size: 1.3rem;
   font-weight: 600;
   margin: 0;
   color: #fff;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
 }
 
 .modalCloseButton {
-  color: #aaa;
-  transition: all 0.2s ease;
-  background-color: rgba(255, 255, 255, 0.1);
-  border-radius: 50%;
-  padding: 6px;
+  color: #fff !important;
+  transition: all 0.2s ease !important;
+  background-color: transparent !important;
+  border-radius: 50% !important;
+  padding: 6px !important;
 }
 
 .modalCloseButton:hover {
-  color: #fff;
-  background-color: rgba(255, 255, 255, 0.2);
-  transform: rotate(90deg);
+  color: #fff !important;
+  background-color: #334155 !important;
+  transform: rotate(90deg) !important;
 }
 
 .modalContent {
   padding: 24px;
   max-height: 70vh;
   overflow-y: auto;
-  color: #e0e0e0;
   scrollbar-width: thin;
-  scrollbar-color: #555 #333;
-}
-
-.modalContent::-webkit-scrollbar {
-  width: 6px;
-}
-
-.modalContent::-webkit-scrollbar-track {
-  background: #333;
-  border-radius: 3px;
-}
-
-.modalContent::-webkit-scrollbar-thumb {
-  background-color: #555;
-  border-radius: 3px;
-}
-
-@media (max-width: 600px) {
-  .modalBox {
-    width: 95%;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    max-height: 90vh;
-  }
-
-  .modalHeader {
-    padding: 16px;
-  }
-
-  .modalContent {
-    padding: 16px;
-    max-height: calc(90vh - 73px);
-  }
 }

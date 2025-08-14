@@ -6,21 +6,25 @@ export function GenericActionButton({
     tooltip,
     onClick,
     color = 'primary',
+    disabled = false,
     size = 'small',
     className = '',
     ...props
 }) {
     return (
         <Tooltip title={tooltip} arrow>
-            <IconButton
-                color={color}
-                onClick={onClick}
-                size={size}
-                className={`${styles.button} ${className}`}
-                {...props}
-            >
-                {icon}
-            </IconButton>
+            <span>
+                <IconButton
+                    color={color}
+                    onClick={onClick}
+                    size={size}
+                    disabled={disabled}
+                    className={`${styles.button} ${className}`}
+                    {...props}
+                >
+                    {icon}
+                </IconButton>
+            </span>
         </Tooltip>
     );
 }

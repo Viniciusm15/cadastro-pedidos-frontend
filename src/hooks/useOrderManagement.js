@@ -3,14 +3,23 @@ import { fetchOrderItemsByOrderId } from '@/api/orderItemService';
 import { orderService } from '@/api/orderService';
 import { fetchProducts } from '@/api/productService';
 import { orderSchema } from '@/schemas/orderSchema';
-import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePaginationManagement';
 import dayjs from 'dayjs';
-import { OrderStatus, getStatusByDescription, getStatusByValue } from '@/enums/OrderStatus';
+import { OrderStatus, getStatusByDescription } from '@/enums/OrderStatus';
 
-export default function useOrderManagement() {
+const INITIAL_FORM_STATE = {
+  clientId: null,
+  orderDate: dayjs(),
+  status: OrderStatus.PENDING.value,
+  orderItems: [],
+  totalValue: 0
+};
+
+export function useOrderManagement() {
   const { fetchAll, create, update, remove, generateOrderCsvReport } = orderService();
 
-  const [orders, setOrders] = useState([]);
+  const [orders, setOrders] = useState({ data: [], totalCount: 0 });
   const [clients, setClients] = useState([]);
   const [products, setProducts] = useState([]);
   const [productMap, setProductMap] = useState({});
@@ -18,26 +27,29 @@ export default function useOrderManagement() {
   const [modalType, setModalType] = useState('');
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [formState, setFormState] = useState({
-    clientId: null,
-    orderDate: dayjs(),
-    status: OrderStatus.PENDING.description,
-    orderItems: [],
-    totalValue: 0
-  });
+  const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [formErrors, setFormErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
+
+  const pagination = usePagination();
 
   const resetForm = useCallback(() => {
-    setFormState({
-      clientId: null,
-      orderDate: dayjs(),
-      status: OrderStatus.PENDING.description,
-      orderItems: [],
-      totalValue: 0
-    });
+    setFormState(INITIAL_FORM_STATE);
     setFormErrors({});
     setSelectedOrder(null);
   }, []);
+
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
+  };
+
+  const closeSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
 
   const clientMap = useMemo(() => {
     return clients.reduce((acc, client) => {
@@ -48,47 +60,64 @@ export default function useOrderManagement() {
 
   const getClientName = useCallback((clientId) => clientMap[clientId] || 'Unknown Client', [clientMap]);
 
+  const loadData = useCallback(async () => {
+    try {
+      const [clientsRes, productsRes, ordersRes] = await Promise.all([
+        clientService.fetchAll(),
+        fetchProducts(),
+        fetchAll(pagination.apiParams)
+      ]);
+
+      setClients(clientsRes?.data || []);
+      setProducts(productsRes?.data || []);
+      setOrders({
+        data: ordersRes?.data || [],
+        totalCount: ordersRes?.totalCount || 0
+      });
+
+      const map = (productsRes?.data || []).reduce((acc, product) => {
+        acc[product.productId] = product;
+        return acc;
+      }, {});
+      setProductMap(map);
+    } catch (error) {
+      showSnackbar('Error loading data', 'error');
+    }
+  }, [pagination.apiParams]);
+
   useEffect(() => {
-    Promise.all([clientService.fetchAll(), fetchProducts(), fetchAll()]).then(
-      ([clientsRes, productsRes, ordersRes]) => {
-        setClients(clientsRes?.data || []);
-        setProducts(productsRes?.data || []);
-        setOrders(ordersRes?.data || []);
-        const map = (productsRes?.data || []).reduce((acc, product) => {
-          acc[product.productId] = product;
-          return acc;
-        }, {});
-        setProductMap(map);
-      }
-    );
-  }, []);
+    loadData();
+  }, [loadData]);
+
+  const refreshData = () => {
+    loadData();
+  };
 
   useEffect(() => {
     if (selectedOrder) {
       setFormState({
         ...selectedOrder,
-        status: getStatusByDescription(selectedOrder.status),
-        orderItems:
-          selectedOrder.orderItems.map((item) => ({
-            productId: item.productId,
-            quantity: item.quantity,
-            unitaryPrice: item.unitaryPrice,
-            id: item.orderItemId
-          })) || []
+        orderDate: dayjs(selectedOrder.orderDate),
+        status: selectedOrder.status?.value || OrderStatus.PENDING.value,
+        orderItems: selectedOrder.orderItems.map((item) => ({
+          productId: item.productId,
+          quantity: item.quantity,
+          unitaryPrice: item.unitaryPrice,
+          id: item.orderItemId
+        })) || []
       });
     }
   }, [selectedOrder]);
 
   const enhancedOrders = useMemo(() => {
-    if (!clients.length) return orders;
-    return orders.map((order) => ({
+    return orders.data.map((order) => ({
       ...order,
       clientName: getClientName(order.clientId),
       statusDescription: getStatusByDescription(order.status)
     }));
-  }, [orders, clients, getClientName]);
+  }, [orders.data, getClientName]);
 
-  const openModal = useCallback(
+  const handleOpenModal = useCallback(
     (type, row = null) => {
       setFormErrors({});
 
@@ -116,79 +145,99 @@ export default function useOrderManagement() {
     [resetForm]
   );
 
-  const closeModal = useCallback(() => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRowId(null);
     resetForm();
   }, [resetForm]);
 
   const handleView = useCallback(async () => {
-    const order = orders.find(({ orderId }) => orderId === selectedRowId);
-    if (order) {
-      const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
-      const enhancedOrder = {
-        ...order,
-        clientName: getClientName(order.clientId),
-        statusDescription: getStatusByDescription(order.status),
-        orderItems: orderItemsRes
-      };
-      setSelectedOrder(enhancedOrder);
-      openModal('view', enhancedOrder);
+    try {
+      const order = orders.data.find(({ orderId }) => orderId === selectedRowId);
+      if (order) {
+        const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
+        const enhancedOrder = {
+          ...order,
+          clientName: getClientName(order.clientId),
+          statusDescription: getStatusByDescription(order.status),
+          orderItems: orderItemsRes.map(item => ({
+            ...item,
+            subtotal: item.quantity * item.unitaryPrice
+          }))
+        };
+        setSelectedOrder(enhancedOrder);
+        handleOpenModal('view', enhancedOrder);
+      }
+    } catch (error) {
+      showSnackbar('Error loading order details', 'error');
     }
-  }, [orders, selectedRowId, getClientName]);
+  }, [orders.data, selectedRowId, getClientName, handleOpenModal]);
 
   const handleCreate = useCallback(() => {
     resetForm();
-    openModal('create');
-  }, [openModal, resetForm]);
+    handleOpenModal('create');
+  }, [handleOpenModal, resetForm]);
 
   const handleEdit = useCallback(async () => {
-    const order = orders.find(({ orderId }) => orderId === selectedRowId);
-    if (order) {
-      const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
-      const orderItemsFormatted = orderItemsRes
-        .map((item) =>
-          productMap[item.productId]
-            ? {
-              ...item,
-              productName: productMap[item.productId].name,
-              subtotal: item.quantity * item.unitaryPrice
-            }
-            : null
-        )
-        .filter(Boolean);
+    try {
+      const order = orders.data.find(({ orderId }) => orderId === selectedRowId);
+      if (order) {
+        const orderItemsRes = await fetchOrderItemsByOrderId(order.orderId);
+        const orderItemsFormatted = orderItemsRes
+          .map((item) =>
+            productMap[item.productId]
+              ? {
+                ...item,
+                productName: productMap[item.productId].name,
+                subtotal: item.quantity * item.unitaryPrice
+              }
+              : null
+          )
+          .filter(Boolean);
 
-      const enhancedOrder = {
-        ...order,
-        clientName: getClientName(order.clientId),
-        statusDescription: getStatusByDescription(order.status),
-        orderItems: orderItemsFormatted
-      };
+        const enhancedOrder = {
+          ...order,
+          clientName: getClientName(order.clientId),
+          statusDescription: getStatusByDescription(order.status),
+          orderItems: orderItemsFormatted
+        };
 
-      setSelectedOrder(enhancedOrder);
-      setFormState({
-        ...enhancedOrder,
-        status: getStatusByDescription(order.status),
-        orderItems: orderItemsFormatted.map((item) => ({
-          productId: item.productId,
-          quantity: item.quantity,
-          unitaryPrice: item.unitaryPrice,
-          id: item.orderItemId
-        }))
-      });
+        setSelectedOrder(enhancedOrder);
+        setFormState({
+          ...enhancedOrder,
+          status: getStatusByDescription(order.status),
+          orderItems: orderItemsFormatted.map((item) => ({
+            productId: item.productId,
+            quantity: item.quantity,
+            unitaryPrice: item.unitaryPrice,
+            id: item.orderItemId
+          }))
+        });
 
-      openModal('edit', enhancedOrder);
+        handleOpenModal('edit', enhancedOrder);
+      }
+    } catch (error) {
+      showSnackbar('Error loading order for edit', 'error');
     }
-  }, [orders, selectedRowId, getClientName, productMap]);
+  }, [orders.data, selectedRowId, getClientName, productMap, handleOpenModal]);
 
   const handleDelete = useCallback(async () => {
     if (!selectedRowId) return;
-    await remove(selectedRowId);
-    setOrders((prev) => prev.filter(({ orderId }) => orderId !== selectedRowId));
-    setSelectedRowId(null);
-  }, [selectedRowId]);
+
+    try {
+      await remove(selectedRowId);
+      showSnackbar('Order deleted successfully');
+      refreshData();
+      setSelectedRowId(null);
+    } catch (error) {
+      showSnackbar('Error deleting order', 'error');
+    }
+  }, [selectedRowId, remove]);
 
   const handleInputChange = ({ target: { name, value } }) => {
+    if (name === 'status') {
+      setFormState(prev => ({ ...prev, [name]: Number(value) }));
+    }
     if (name === 'orderItems') {
       const selectedProductIds = Array.isArray(value) ? value : [value];
       const selectedProducts = selectedProductIds
@@ -248,11 +297,13 @@ export default function useOrderManagement() {
     [handleRemoveItem]
   );
 
-  const handleDateChange = (date) =>
+  const handleDateChange = (date) => {
+    const newDate = dayjs(date);
     setFormState((prev) => ({
       ...prev,
-      orderDate: dayjs(date).isValid() ? dayjs(date) : prev.orderDate
+      orderDate: newDate.isValid() ? newDate : dayjs()
     }));
+  };
 
   const totalValue = useMemo(() => {
     if (!Array.isArray(formState.orderItems)) return 0;
@@ -266,7 +317,7 @@ export default function useOrderManagement() {
       ...formState,
       orderDate: dayjs(formState.orderDate).format('YYYY-MM-DD'),
       totalValue,
-      status: getStatusByValue(formState.status),
+      status: formState.status,
       clientId: formState.clientId,
       orderItems:
         formState.orderItems?.map((item) => ({
@@ -285,13 +336,14 @@ export default function useOrderManagement() {
 
       if (modalType === 'create') {
         await create(orderData);
+        showSnackbar('Order created successfully');
       } else if (modalType === 'edit') {
         await update(selectedRowId, orderData);
+        showSnackbar('Order updated successfully');
       }
 
-      closeModal();
-      const { data } = await fetchAll();
-      setOrders(data);
+      refreshData();
+      handleCloseModal();
     } catch (err) {
       if (err.name === 'ValidationError') {
         const errors = {};
@@ -299,12 +351,17 @@ export default function useOrderManagement() {
           errors[validationError.path] = validationError.message;
         });
         setFormErrors(errors);
+      } else {
+        showSnackbar('Error saving order', 'error');
       }
     }
   };
 
   return {
-    orders: enhancedOrders,
+    orders: {
+      data: enhancedOrders,
+      totalCount: orders.totalCount
+    },
     clients,
     products,
     productMap,
@@ -313,19 +370,22 @@ export default function useOrderManagement() {
     modalType,
     selectedOrder,
     selectedRowId,
-    totalValue,
     setSelectedRowId,
     handleCreate,
     handleEdit,
-    handleDelete,
     handleView,
+    handleDelete,
     handleRemoveItem,
+    handleCloseModal,
     handleInputChange,
     handleQuantityChange,
     handleDateChange,
     handleSubmit,
     formErrors,
-    closeModal,
+    refreshData,
+    snackbar,
+    closeSnackbar,
+    pagination,
     generateOrderCsvReport
   };
 }

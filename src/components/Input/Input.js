@@ -15,11 +15,11 @@ export default function GenericInput({ name, label, value, onChange, type = 'tex
       fullWidth
       className={styles.inputField}
       InputLabelProps={{
-        style: { color: '#ffffff' },
+        style: { color: '#2f2f2f' },
         sx: {
-          color: '#ffffff',
+          color: '#2f2f2f',
           '&::before': {
-            borderBottom: '1px solid #2f2f2f'
+            borderBottom: '1px solid #334155'
           }
         }
       }}
@@ -27,20 +27,20 @@ export default function GenericInput({ name, label, value, onChange, type = 'tex
         className: styles.inputField,
         sx: {
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#2f2f2f'
+            borderColor: '#334155'
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#262f37'
+            borderColor: '#334155'
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#262f37',
+            borderColor: '#334155',
             borderWidth: '1px'
           },
           '& .MuiInput-underline:after': {
-            borderBottomColor: '#262f37'
+            borderBottomColor: '#334155'
           },
           '& .MuiInput-underline:hover:not(.Mui-disabled):before': {
-            borderBottomColor: '#262f37'
+            borderBottomColor: '#334155'
           }
         }
       }}

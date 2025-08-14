@@ -42,6 +42,6 @@ export const getStatusByDescription = (description) => {
 };
 
 export const OrderStatusOptions = Object.values(OrderStatus).map(status => ({
-    value: status.description,
+    value: status.value,
     label: status.description
 }));

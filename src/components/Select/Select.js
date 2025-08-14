@@ -59,7 +59,7 @@ export default function GenericSelect({
 
   return (
     <FormControl fullWidth className={styles.formControl} error={!!error}>
-      <InputLabel className={styles.inputLabel} sx={{ color: '#ffffff !important' }}>
+      <InputLabel className={styles.inputLabel}>
         {label}
       </InputLabel>
       <Select
@@ -72,23 +72,23 @@ export default function GenericSelect({
         renderValue={renderValue || defaultRenderValue}
         label={label}
         sx={{
-          color: '#ffffff',
+          color: '#1e293b',
           '& .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#2f2f2f'
+            borderColor: '#1e293b'
           },
           '&:hover .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#262f37'
+            borderColor: '#1e293b'
           },
           '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            borderColor: '#262f37',
+            borderColor: '#1e293b',
             borderWidth: '1px'
           },
           '& .MuiSelect-icon': {
-            color: '#ffffff',
+            color: '#1e293b',
             fontSize: '1.5rem'
           },
           '& .MuiInputLabel-root.Mui-focused': {
-            color: '#ffffff !important'
+            color: '#ff0000ff !important'
           }
         }}
       >

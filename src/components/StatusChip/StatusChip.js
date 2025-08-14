@@ -1,12 +1,10 @@
 import styles from './StatusChip.module.css';
 import React from 'react';
-import { Chip } from '@mui/material';
-import { OrderStatus, getStatusByValue, getStatusByDescription } from '@/enums/OrderStatus';
+import { Chip, Box } from '@mui/material';
+import { OrderStatus, getStatusByValue } from '@/enums/OrderStatus';
 
 export function GenericStatusChip({
     status,
-    label,
-    icon,
     color,
     variant = 'filled',
     size = 'small',
@@ -18,61 +16,30 @@ export function GenericStatusChip({
 
     if (typeof status === 'number') {
         statusConfig = getStatusByValue(status);
-    } else if (typeof status === 'string') {
-        statusConfig = getStatusByDescription(status);
-    } else {
+    } else if (typeof status === 'object' && status.value !== undefined) {
         statusConfig = status;
-    }
-
-    if (!statusConfig) {
+    } else {
         statusConfig = OrderStatus.PENDING;
     }
 
-    const renderIcon = () => {
-        if (React.isValidElement(icon)) {
-            return (
-                <span className={styles.iconWrapper}>
-                    {icon}
-                </span>
-            );
-        }
-
-        if (icon && typeof icon === 'function') {
-            const IconComponent = icon;
-            return (
-                <span className={styles.iconWrapper}>
-                    <IconComponent fontSize="small" />
-                </span>
-            );
-        }
-
-        if (statusConfig.Icon) {
-            const StatusIcon = statusConfig.Icon;
-            return (
-                <span className={styles.iconWrapper}>
-                    <StatusIcon fontSize="small" />
-                </span>
-            );
-        }
-
-        return null;
-    };
+    const renderLabel = () => (
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            {statusConfig.Icon && <statusConfig.Icon fontSize="small" />}
+            <span>{statusConfig.description}</span>
+        </Box>
+    );
 
     return (
         <Chip
             className={`${styles.chip} ${className}`}
-            label={label || statusConfig.displayText}
+            label={renderLabel()}
             color={color || statusConfig.color}
             variant={variant}
             size={size}
-            icon={renderIcon()}
             clickable={clickable}
             onClick={onClick}
             sx={{
                 fontWeight: 'medium',
-                '& .MuiChip-icon': {
-                    marginLeft: '4px'
-                },
                 '&:hover': clickable ? {
                     opacity: 0.9,
                     transform: 'translateY(-1px)'

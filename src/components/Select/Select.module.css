@@ -1,21 +1,21 @@
 .formControl {
-  margin-top: 10px;
+  margin-top: 10px !important;
   width: 100%;
 }
 
 .inputLabel {
-  color: #ffffff !important;
+  color: #1e293b !important;
   transition: all 0.2s ease-out;
 }
 
 .select {
-  color: #ffffff;
+  color: #1e293b;
   border-radius: 4px !important;
   transition: all 0.3s ease;
 }
 
 .inputLabel.Mui-focused {
-  color: #ffffff !important;
+  color: #1e293b !important;
   transform: translate(14px, -9px) scale(0.75);
 }
 

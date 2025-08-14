@@ -1,16 +1,18 @@
 'use client';
 
-import GenericDataGrid from '@/components/DataGrid/DataGrid';
-import GenericDatePicker from '@/components/DatePicker/DatePicker';
+import { useClientManagement } from '@/hooks/useClientManagement';
+import { GenericDataTable } from '@/components/DataTable/DataTable';
 import GenericForm from '@/components/Form/Form';
+import GenericModal from '@/components/Modal/Modal';
+import { GenericActionButton } from '@/components/ActionButton/ActionButton';
+import { GenericSnackbar } from '@/components/SnackBar/SnackBar';
+import GenericView from '@/components/View/View';
 import GenericHeader from '@/components/Header/Header';
 import GenericList from '@/components/List/List';
-import GenericModal from '@/components/Modal/Modal';
-import GenericView from '@/components/View/View';
+import GenericDatePicker from '@/components/DatePicker/DatePicker';
 
-import { Delete as DeleteIcon, Edit as EditIcon, Add as AddIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
-
-import useClientManagement from '@/hooks/useClientManagement';
+import { Add, Edit, Delete, Refresh, Visibility } from '@mui/icons-material';
+import { Box } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 
@@ -28,11 +30,41 @@ export default function ClientManagement() {
     handleEdit,
     handleView,
     handleDelete,
-    closeModal,
+    handleCloseModal,
     handleInputChange,
     handleDateChange,
-    handleSubmit
+    handleSubmit,
+    refreshData,
+    snackbar,
+    closeSnackbar,
+    pagination
   } = useClientManagement();
+
+  const getClientColumns = () => [
+    {
+      field: 'name',
+      headerName: 'Name',
+      width: '25%',
+      maxLength: 30,
+    },
+    {
+      field: 'email',
+      headerName: 'Email',
+      width: '30%',
+      maxLength: 40,
+    },
+    {
+      field: 'telephone',
+      headerName: 'Telephone',
+      width: '20%',
+    },
+    {
+      field: 'birthDate',
+      headerName: 'Birth Date',
+      width: '25%',
+      render: (row) => dayjs(row.birthDate).format('MM/DD/YYYY')
+    }
+  ];
 
   const contactInfoItems = [
     { label: 'Name', value: selectedClient?.name },
@@ -45,39 +77,61 @@ export default function ClientManagement() {
   ];
 
   return (
-    <React.Fragment>
-      <GenericDataGrid
-        key={clients.length}
-        rows={clients.map((client) => ({ id: client.clientId, ...client }))}
-        columns={[
-          { field: 'name', headerName: 'Name', width: 150 },
-          { field: 'email', headerName: 'Email', width: 200 },
-          { field: 'telephone', headerName: 'Telephone', width: 150 },
-          {
-            field: 'birthDate',
-            headerName: 'Birth Date',
-            width: 150,
-            valueFormatter: (params) => dayjs(params).format('MM/DD/YYYY')
-          }
-        ]}
-        pageSizeOptions={[10, 25, 50]}
-        handleCreate={handleCreate}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-        setSelectedRowId={setSelectedRowId}
+    <Box sx={{ p: 3 }}>
+      <GenericDataTable
+        title="Client Management"
+        maxTextLength={40}
+        columns={getClientColumns()}
+        data={clients.data}
+        totalCount={clients.totalCount}
+        page={pagination.pagination.page}
+        rowsPerPage={pagination.pagination.rowsPerPage}
+        onPageChange={pagination.handlePageChange}
+        onRowsPerPageChange={pagination.handleRowsPerPageChange}
         selectedRowId={selectedRowId}
-        additionalActions={[
-          { label: 'Create', icon: <AddIcon />, onClick: handleCreate },
-          { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
-          { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
-          { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
+        setSelectedRowId={(clientId) => { setSelectedRowId(clientId); }}
+        rowIdField="clientId"
+        actionButtons={[
+          <GenericActionButton
+            key="create"
+            icon={<Add />}
+            tooltip="Add new client"
+            onClick={handleCreate}
+          />,
+          <GenericActionButton
+            key="view"
+            icon={<Visibility />}
+            onClick={handleView}
+            disabled={!selectedRowId}
+            tooltip="View client details"
+          />,
+          <GenericActionButton
+            key="edit"
+            icon={<Edit />}
+            onClick={handleEdit}
+            disabled={!selectedRowId}
+            tooltip="Edit client"
+          />,
+          <GenericActionButton
+            key="delete"
+            icon={<Delete />}
+            onClick={handleDelete}
+            disabled={!selectedRowId}
+            tooltip="Delete client"
+          />,
+          <GenericActionButton
+            key="refresh"
+            icon={<Refresh />}
+            tooltip="Refresh list"
+            onClick={refreshData}
+          />
         ]}
       />
 
       <GenericModal
         open={isModalOpen}
-        handleClose={closeModal}
-        title={modalType === 'edit' ? 'Edit Client' : modalType === 'view' ? 'View Client' : 'Create Client'}
+        handleClose={handleCloseModal}
+        title={modalType === 'edit' ? 'Edit Client' : modalType === 'view' ? 'Client Details' : 'New Client'}
       >
         {modalType === 'view' && selectedClient ? (
           <React.Fragment>
@@ -85,7 +139,7 @@ export default function ClientManagement() {
             <GenericHeader title='Purchase History' count={selectedClient.purchaseHistory?.length || 0} />
 
             <GenericList
-              items={selectedClient.purchaseHistory}
+              items={selectedClient?.purchaseHistory}
               primaryText={(purchase) => `Order #${purchase.orderId.toString().padStart(6, '0')}`}
               secondaryText={(purchase) => (
                 <React.Fragment>
@@ -104,27 +158,32 @@ export default function ClientManagement() {
           <GenericForm
             formState={formState}
             handleInputChange={handleInputChange}
-            handleDateChange={handleDateChange}
-            handleSubmit={modalType === 'view' ? closeModal : handleSubmit}
+            handleSubmit={modalType === 'view' ? handleCloseModal : handleSubmit}
             fields={[
-              { name: 'name', label: 'Client Name', type: 'text', disabled: modalType === 'view' },
-              { name: 'email', label: 'Email', type: 'text', disabled: modalType === 'view' },
-              { name: 'telephone', label: 'Telephone', type: 'text', disabled: modalType === 'view' }
+              { name: 'name', label: 'Client Name', type: 'text' },
+              { name: 'email', label: 'Email', type: 'text' },
+              { name: 'telephone', label: 'Telephone', type: 'text' }
             ]}
             additionalFields={
               <GenericDatePicker
                 label='Birth Date'
                 value={formState.birthDate || null}
                 onChange={handleDateChange}
-                disabled={modalType === 'view'}
                 error={formErrors.birthDate}
               />
             }
             formErrors={formErrors}
-            submitLabel={modalType === 'edit' ? 'Update' : modalType === 'view' ? 'Close' : 'Create'}
+            submitLabel={modalType === 'edit' ? 'Update' : 'Create'}
           />
         )}
       </GenericModal>
-    </React.Fragment>
+
+      <GenericSnackbar
+        open={snackbar.open}
+        onClose={closeSnackbar}
+        message={snackbar.message}
+        severity={snackbar.severity}
+      />
+    </Box>
   );
 }

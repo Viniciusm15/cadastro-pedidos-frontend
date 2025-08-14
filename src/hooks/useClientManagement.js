@@ -1,98 +1,132 @@
 import { clientService } from '@/api/clientService';
 import { clientSchema } from '@/schemas/clientSchema';
+import { useState, useEffect, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePaginationManagement';
 import dayjs from 'dayjs';
-import { useEffect, useState } from 'react';
 
-export default function useClientManagement() {
-  const [clients, setClients] = useState([]);
+const INITIAL_FORM_STATE = {
+  name: '',
+  email: '',
+  telephone: '',
+  birthDate: dayjs()
+};
+
+export function useClientManagement() {
+  const [clients, setClients] = useState({ data: [], totalCount: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalType, setModalType] = useState('');
   const [selectedRowId, setSelectedRowId] = useState(null);
   const [selectedClient, setSelectedClient] = useState(null);
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    telephone: '',
-    birthDate: dayjs()
-  });
+  const [formState, setFormState] = useState(INITIAL_FORM_STATE);
   const [formErrors, setFormErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
-  useEffect(() => {
-    fetchClients();
+  const pagination = usePagination();
+
+  const resetForm = useCallback(() => {
+    setFormState(INITIAL_FORM_STATE);
+    setFormErrors({});
   }, []);
 
-  const fetchClients = async () => {
-    const { data } = await clientService.fetchAll();
-    setClients(data);
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
   };
 
-  const openModal = (type, row = {}) => {
+  const closeSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const loadData = useCallback(async () => {
+    try {
+      const clientsRes = await clientService.fetchAll(pagination.apiParams);
+      setClients({
+        data: clientsRes.data,
+        totalCount: clientsRes.totalCount
+      });
+    } catch (error) {
+      showSnackbar('Error loading clients', 'error');
+    }
+  }, [pagination.apiParams]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const refreshData = () => {
+    loadData();
+  };
+
+  const handleOpenModal = useCallback((type, rowData = null) => {
     setFormErrors({});
 
-    if (type === 'create') {
+    if (rowData) {
+      setSelectedClient(rowData);
       setFormState({
-        name: '',
-        email: '',
-        telephone: '',
-        birthDate: dayjs()
+        ...rowData,
+        birthDate: rowData.birthDate ? dayjs(rowData.birthDate) : dayjs()
       });
     } else {
-      setFormState({
-        ...row,
-        birthDate: row.birthDate ? dayjs(row.birthDate) : dayjs()
-      });
+      resetForm();
     }
 
     setModalType(type);
     setIsModalOpen(true);
-  };
+  }, [resetForm]);
 
-  const closeModal = () => {
+  const handleCreate = useCallback(() => {
+    handleOpenModal('create');
+  }, [handleOpenModal]);
+
+  const handleEdit = useCallback(() => {
+    if (!selectedRowId) return;
+    const client = clients.data.find(c => c.clientId === selectedRowId);
+    if (client) handleOpenModal('edit', client);
+  }, [selectedRowId, clients.data, handleOpenModal]);
+
+  const handleView = useCallback(() => {
+    if (!selectedRowId) return;
+    const client = clients.data.find(c => c.clientId === selectedRowId);
+    if (client) handleOpenModal('view', client);
+  }, [selectedRowId, clients.data, handleOpenModal]);
+
+  const handleDelete = useCallback(async () => {
+    if (!selectedRowId) return;
+
+    try {
+      await clientService.remove(selectedRowId);
+      showSnackbar('Client deleted successfully');
+      refreshData();
+      setSelectedRowId(null);
+    } catch (error) {
+      showSnackbar('Error deleting client', 'error');
+    }
+  }, [selectedRowId]);
+
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false);
     setSelectedRowId(null);
-    setFormState({
-      name: '',
-      email: '',
-      telephone: '',
-      birthDate: dayjs()
-    });
-    setFormErrors({});
-  };
+    resetForm();
+  }, [resetForm]);
 
-  const handleCreate = () => openModal('create');
-
-  const handleActionWithSelectedClient = (action) => {
-    const selected = clients.find(({ clientId }) => clientId === selectedRowId);
-    if (selected) {
-      setSelectedClient(selected);
-      action({
-        ...selected,
-        birthDate: dayjs(selected.birthDate)
-      });
-    }
-  };
-
-  const handleEdit = () => handleActionWithSelectedClient((clientData) => openModal('edit', clientData));
-
-  const handleView = () => handleActionWithSelectedClient((clientData) => openModal('view', clientData));
-
-  const handleDelete = async () => {
-    if (selectedRowId) {
-      await clientService.remove(selectedRowId);
-      setClients((prev) => prev.filter(({ clientId }) => clientId !== selectedRowId));
-      setSelectedRowId(null);
-    }
-  };
-
-  const handleInputChange = ({ target: { name, value } }) => setFormState((prev) => ({ ...prev, [name]: value }));
-
-  const handleDateChange = (date) =>
-    setFormState((prevState) => ({
-      ...prevState,
-      birthDate: date && dayjs(date).isValid() ? dayjs(date) : prevState.birthDate
+  const handleInputChange = useCallback(({ target: { name, value } }) => {
+    setFormState(prev => ({
+      ...prev,
+      [name]: value
     }));
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleDateChange = useCallback((date) => {
+    setFormState(prev => ({
+      ...prev,
+      birthDate: date && dayjs(date).isValid() ? dayjs(date) : prev.birthDate
+    }));
+  }, []);
+
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     const clientData = {
@@ -106,22 +140,26 @@ export default function useClientManagement() {
 
       if (modalType === 'create') {
         await clientService.create(clientData);
+        showSnackbar('Client created successfully');
       } else if (modalType === 'edit') {
         await clientService.update(selectedRowId, clientData);
+        showSnackbar('Client updated successfully');
       }
 
-      closeModal();
-      fetchClients();
+      refreshData();
+      handleCloseModal();
     } catch (err) {
       if (err.name === 'ValidationError') {
         const errors = {};
-        err.inner.forEach((validationError) => {
-          errors[validationError.path] = validationError.message;
+        err.inner.forEach(({ path, message }) => {
+          errors[path] = message;
         });
         setFormErrors(errors);
+      } else {
+        showSnackbar('Error saving client', 'error');
       }
     }
-  };
+  }, [formState, modalType, selectedRowId, handleCloseModal]);
 
   return {
     clients,
@@ -130,15 +168,19 @@ export default function useClientManagement() {
     selectedRowId,
     selectedClient,
     formState,
+    formErrors,
     setSelectedRowId,
     handleCreate,
     handleEdit,
     handleView,
     handleDelete,
+    handleCloseModal,
     handleInputChange,
     handleDateChange,
     handleSubmit,
-    formErrors,
-    closeModal
+    refreshData,
+    snackbar,
+    closeSnackbar,
+    pagination
   };
 }

@@ -61,7 +61,7 @@ export default function AdminLayout({ children }) {
   const router = useRouter();
   const pathname = usePathname();
   const [state, setState] = useState({
-    open: true,
+    open: false,
     selectedText: 'Dashboard'
   });
 

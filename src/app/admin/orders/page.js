@@ -1,110 +1,175 @@
 'use client';
 
-import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  Add as AddIcon,
-  Visibility as VisibilityIcon,
-  FileDownload as FileDownloadIcon
-} from '@mui/icons-material';
-import dayjs from 'dayjs';
-import React from 'react';
-
-import GenericDataGrid from '@/components/DataGrid/DataGrid';
-import GenericDatePicker from '@/components/DatePicker/DatePicker';
+import { useOrderManagement } from '@/hooks/useOrderManagement';
+import { GenericDataTable } from '@/components/DataTable/DataTable';
 import GenericForm from '@/components/Form/Form';
-import GenericHeader from '@/components/Header/Header';
-import GenericInput from '@/components/Input/Input';
-import GenericList from '@/components/List/List';
 import GenericModal from '@/components/Modal/Modal';
-import GenericSelect from '@/components/Select/Select';
+import { GenericActionButton } from '@/components/ActionButton/ActionButton';
+import { GenericSnackbar } from '@/components/SnackBar/SnackBar';
+import { GenericStatusChip } from '@/components/StatusChip/StatusChip';
 import GenericView from '@/components/View/View';
+import GenericHeader from '@/components/Header/Header';
+import GenericList from '@/components/List/List';
+import GenericDatePicker from '@/components/DatePicker/DatePicker';
+import GenericSelect from '@/components/Select/Select';
+import GenericInput from '@/components/Input/Input';
 import { OrderStatusOptions } from '@/enums/OrderStatus';
 
-import useOrderManagement from '@/hooks/useOrderManagement';
-
-const formatDate = (date) => dayjs(date).format('MM/DD/YYYY');
+import { Add, Edit, Delete, Refresh, Visibility, FileDownload } from '@mui/icons-material';
+import { Box } from '@mui/material';
+import dayjs from 'dayjs';
+import React from 'react';
 
 export default function OrderManagement() {
   const {
     orders,
-    selectedRowId,
-    setSelectedRowId,
     isModalOpen,
     modalType,
+    selectedRowId,
     selectedOrder,
     formState,
     formErrors,
-    clients,
-    products,
-    productMap,
+    setSelectedRowId,
     handleCreate,
     handleEdit,
     handleView,
-    handleRemoveItem,
     handleDelete,
+    handleRemoveItem,
+    handleCloseModal,
     handleInputChange,
     handleDateChange,
     handleQuantityChange,
     handleSubmit,
-    closeModal,
+    refreshData,
+    snackbar,
+    closeSnackbar,
+    pagination,
+    clients,
+    products,
+    productMap,
     generateOrderCsvReport
   } = useOrderManagement();
 
+  const getOrderColumns = () => [
+    {
+      field: 'clientName',
+      headerName: 'Client',
+      width: '25%',
+      maxLength: 30,
+    },
+    {
+      field: 'orderDate',
+      headerName: 'Order Date',
+      width: '20%',
+      render: (row) => dayjs(row.orderDate).format('MM/DD/YYYY')
+    },
+    {
+      field: 'totalValue',
+      headerName: 'Total Value',
+      width: '20%',
+      align: 'right',
+      render: (row) => `$${row.totalValue.toFixed(2)}`
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      width: '20%',
+      render: (row) => (
+        <GenericStatusChip status={row.status} />
+      )
+    }
+  ];
+
   const orderInfoItems = [
     { label: 'Client', value: selectedOrder?.clientName },
-    { label: 'Order Date', value: formatDate(selectedOrder?.orderDate) },
-    { label: 'Total Value', value: selectedOrder?.totalValue?.toFixed(2) },
-    { label: 'Status', value: selectedOrder?.statusDescription }
+    {
+      label: 'Order Date',
+      value: selectedOrder?.orderDate ? dayjs(selectedOrder.orderDate).format('MMMM D, YYYY') : null
+    },
+    {
+      label: 'Total Value',
+      value: selectedOrder?.totalValue ? `$${selectedOrder.totalValue.toFixed(2)}` : null
+    },
+    {
+      label: 'Status',
+      value: <GenericStatusChip status={selectedOrder?.status} />
+    }
   ];
 
   return (
-    <React.Fragment>
-      <GenericDataGrid
-        key={orders.length}
-        rows={orders.map(({ orderId, clientName, orderDate, totalValue, statusDescription }) => ({
-          id: orderId,
-          clientName,
-          orderDate: formatDate(orderDate),
-          totalValue,
-          statusDescription
-        }))}
-        columns={[
-          { field: 'clientName', headerName: 'Client', width: 150 },
-          { field: 'orderDate', headerName: 'Order Date', width: 150 },
-          { field: 'totalValue', headerName: 'Total Value', width: 150 },
-          { field: 'statusDescription', headerName: 'Status', width: 150 }
-        ]}
-        pageSizeOptions={[10, 25, 50]}
-        handleCreate={handleCreate}
-        handleEdit={handleEdit}
-        handleDelete={handleDelete}
-        setSelectedRowId={setSelectedRowId}
+    <Box sx={{ p: 3 }}>
+      <GenericDataTable
+        title="Order Management"
+        maxTextLength={40}
+        columns={getOrderColumns()}
+        data={orders.data}
+        totalCount={orders.totalCount}
+        page={pagination.pagination.page}
+        rowsPerPage={pagination.pagination.rowsPerPage}
+        onPageChange={pagination.handlePageChange}
+        onRowsPerPageChange={pagination.handleRowsPerPageChange}
         selectedRowId={selectedRowId}
-        additionalActions={[
-          { label: 'Export CSV', icon: <FileDownloadIcon />, onClick: generateOrderCsvReport, needsSelection: false },
-          { label: 'Create', icon: <AddIcon />, onClick: handleCreate },
-          { label: 'Edit', icon: <EditIcon />, onClick: handleEdit, needsSelection: true },
-          { label: 'View', icon: <VisibilityIcon />, onClick: handleView, needsSelection: true },
-          { label: 'Delete', icon: <DeleteIcon />, onClick: handleDelete, needsSelection: true }
+        setSelectedRowId={(orderId) => { setSelectedRowId(orderId); }}
+        rowIdField="orderId"
+        actionButtons={[
+          <GenericActionButton
+            key="export"
+            icon={<FileDownload />}
+            tooltip="Export CSV"
+            onClick={generateOrderCsvReport}
+          />,
+          <GenericActionButton
+            key="create"
+            icon={<Add />}
+            tooltip="Add new order"
+            onClick={handleCreate}
+          />,
+          <GenericActionButton
+            key="view"
+            icon={<Visibility />}
+            onClick={handleView}
+            disabled={!selectedRowId}
+            tooltip="View order details"
+          />,
+          <GenericActionButton
+            key="edit"
+            icon={<Edit />}
+            onClick={handleEdit}
+            disabled={!selectedRowId}
+            tooltip="Edit order"
+          />,
+          <GenericActionButton
+            key="delete"
+            icon={<Delete />}
+            onClick={handleDelete}
+            disabled={!selectedRowId}
+            tooltip="Delete order"
+          />,
+          <GenericActionButton
+            key="refresh"
+            icon={<Refresh />}
+            tooltip="Refresh list"
+            onClick={refreshData}
+          />
         ]}
       />
+
       <GenericModal
         open={isModalOpen}
-        handleClose={closeModal}
-        title={modalType === 'edit' ? 'Edit Order' : modalType === 'view' ? 'View Order' : 'Create Order'}
+        handleClose={handleCloseModal}
+        title={modalType === 'edit' ? 'Edit Order' : modalType === 'view' ? 'Order Details' : 'New Order'}
       >
-        {modalType === 'view' ? (
+        {modalType === 'view' && selectedOrder ? (
           <React.Fragment>
             <GenericView title='Order Information' items={orderInfoItems} />
             <GenericHeader title='Order Items' count={selectedOrder?.orderItems?.length || 0} />
 
             <GenericList
               items={selectedOrder?.orderItems}
-              primaryText={(purchase) => `${purchase.productName} $${purchase.unitaryPrice.toFixed(2)}`}
-              secondaryText={(purchase) => (
+              primaryText={(item) => `${item.productName} - $${item.unitaryPrice.toFixed(2)}`}
+              secondaryText={(item) => (
                 <React.Fragment>
-                  {purchase.productName} x{purchase.quantity} - Subtotal: ${purchase.subtotal.toFixed(2)}
+                  Qty: {item.quantity} | Subtotal: ${item.subtotal.toFixed(2)}
                 </React.Fragment>
               )}
             />
@@ -113,14 +178,13 @@ export default function OrderManagement() {
           <GenericForm
             formState={formState}
             handleInputChange={handleInputChange}
-            handleDateChange={handleDateChange}
             handleSubmit={handleSubmit}
             fields={[]}
             additionalFields={
               <React.Fragment>
                 <GenericDatePicker
                   label='Order Date'
-                  value={dayjs(formState.orderDate)}
+                  value={formState.orderDate || null}
                   onChange={handleDateChange}
                   error={formErrors.orderDate}
                 />
@@ -139,7 +203,7 @@ export default function OrderManagement() {
                   <GenericSelect
                     label="Status"
                     name="status"
-                    value={formState.status || ''}
+                    value={formState.status ?? OrderStatus.PENDING.value}
                     onChange={handleInputChange}
                     options={OrderStatusOptions}
                     error={formErrors.status}
@@ -179,6 +243,13 @@ export default function OrderManagement() {
           />
         )}
       </GenericModal>
-    </React.Fragment>
+
+      <GenericSnackbar
+        open={snackbar.open}
+        onClose={closeSnackbar}
+        message={snackbar.message}
+        severity={snackbar.severity}
+      />
+    </Box>
   );
 }

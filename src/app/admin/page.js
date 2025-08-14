@@ -11,11 +11,12 @@ import { GenericSnackbar } from '@/components/SnackBar/SnackBar';
 import { GenericStatusChip } from '@/components/StatusChip/StatusChip';
 import {
   Box,
+  Chip,
   Grid,
   Typography,
   TextField
 } from '@mui/material';
-import { AttachMoney, ProductionQuantityLimits, Inventory, PendingActions, People, Warning, Refresh } from '@mui/icons-material';
+import { AttachMoney, ProductionQuantityLimits, Inventory, PendingActions, People, Refresh } from '@mui/icons-material';
 
 export default function Dashboard() {
   const {
@@ -43,14 +44,15 @@ export default function Dashboard() {
       headerName: 'Stock',
       align: 'right',
       width: '20%',
-      render: (row) => (
-        <GenericStatusChip
-          label={row.stock}
-          icon={<Warning fontSize="small" />}
-          color="warning"
-          variant="outlined"
-        />
-      )
+      render: (row) => {
+        return (
+          <Chip
+            label={`${row.stock} units`}
+            color='error'
+            size="small"
+          />
+        );
+      },
     },
     { field: 'category', headerName: 'Category', width: '30%' },
     {
@@ -71,7 +73,12 @@ export default function Dashboard() {
 
   const getPendingOrdersColumns = () => [
     { field: 'id', headerName: 'Order', width: '20%' },
-    { field: 'customer', headerName: 'Customer', width: '30%' },
+    {
+      field: 'customer',
+      headerName: 'Customer',
+      width: '30%',
+      maxLength: 30,
+    },
     {
       field: 'amount',
       headerName: 'Amount',
@@ -143,6 +150,7 @@ export default function Dashboard() {
         <Grid item xs={12} lg={6}>
           <GenericDataTable
             title="Low Stock Products"
+            maxTextLength={30}
             columns={getLowStockColumns()}
             data={lowStockProducts.data}
             totalCount={lowStockProducts.totalCount}
@@ -163,6 +171,7 @@ export default function Dashboard() {
         <Grid item xs={12} lg={6}>
           <GenericDataTable
             title="Pending Orders"
+            maxTextLength={30}
             columns={getPendingOrdersColumns()}
             data={pendingOrders.data}
             totalCount={pendingOrders.totalCount}

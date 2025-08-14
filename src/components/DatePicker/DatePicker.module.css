@@ -1,14 +1,10 @@
-.inputBase {
-  color: #ffffff;
-}
-
 .inputBase.Mui-error {
   border-color: red;
   color: red;
 }
 
 .inputLabel {
-  color: #ffffff !important;
+  color: #2f2f2f !important;
 }
 
 .inputLabel.Mui-error {

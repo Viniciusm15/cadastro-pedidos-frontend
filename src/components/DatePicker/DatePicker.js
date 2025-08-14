@@ -49,7 +49,7 @@ export default function GenericDatePicker({ label, value, onChange, disabled = f
         sx={{
           marginTop: '10px',
           '.MuiSvgIcon-root': {
-            color: '#ffffff'
+            color: '#1e293b'
           }
         }}
       />

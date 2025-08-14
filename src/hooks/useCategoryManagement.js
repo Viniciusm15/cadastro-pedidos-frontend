@@ -1,69 +1,111 @@
 import { categoryService } from '@/api/categoryService';
 import { categorySchema } from '@/schemas/categorySchema';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { usePagination } from '@/hooks/usePaginationManagement';
 
-export const useCategoryManagement = () => {
-  const [categories, setCategories] = useState([]);
-  const [selectedRowId, setSelectedRowId] = useState(null);
-  const [formState, setFormState] = useState({
-    name: '',
-    description: '',
-    productCount: 0
-  });
-  const [formErrors, setFormErrors] = useState({});
-  const [modalType, setModalType] = useState('');
+const INITIAL_FORM_STATE = {
+  name: '',
+  description: '',
+  productCount: 0
+};
+
+export function useCategoryManagement() {
+  const [categories, setCategories] = useState({ data: [], totalCount: 0 });
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState('');
+  const [selectedRowId, setSelectedRowId] = useState(null);
+  const [formState, setFormState] = useState(INITIAL_FORM_STATE);
+  const [formErrors, setFormErrors] = useState({});
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'success'
+  });
 
-  const fetchCategories = async () => {
-    const { data } = await categoryService.fetchAll();
-    setCategories(data);
-  };
+  const pagination = usePagination();
 
-  useEffect(() => {
-    fetchCategories();
+  const resetForm = useCallback(() => {
+    setFormState(INITIAL_FORM_STATE);
+    setFormErrors({});
   }, []);
 
-  const resetForm = () => {
-    setFormState({
-      name: '',
-      description: '',
-      productCount: 0
-    });
-    setFormErrors({});
+  const showSnackbar = (message, severity = 'success') => {
+    setSnackbar({ open: true, message, severity });
   };
 
-  const handleOpenModal = (type, row = null) => {
+  const closeSnackbar = () => {
+    setSnackbar(prev => ({ ...prev, open: false }));
+  };
+
+  const loadData = useCallback(async () => {
+    try {
+      const categoriesRes = await categoryService.fetchAll(pagination.apiParams);
+      setCategories({
+        data: categoriesRes.data,
+        totalCount: categoriesRes.totalCount
+      });
+    } catch (error) {
+      showSnackbar('Error loading categories', 'error');
+    }
+  }, [pagination.apiParams]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const refreshData = () => {
+    loadData();
+  };
+
+  const handleOpenModal = useCallback((type, rowData = null) => {
     setFormErrors({});
 
-    if (type === 'create') {
-      resetForm();
-    } else if (row) {
-      setFormState({
-        name: row.name,
-        description: row.description,
-        productCount: row.productCount || 0
-      });
-    }
+    setFormState({
+      ...INITIAL_FORM_STATE,
+      ...rowData
+    });
 
     setModalType(type);
     setIsModalOpen(true);
-  };
+  }, [resetForm]);
 
-  const handleCreate = () => handleOpenModal('create');
+  const handleCreate = useCallback(() => {
+    resetForm();
+    handleOpenModal('create');
+  }, [handleOpenModal, resetForm]);
 
-  const handleEdit = () => {
-    const selectedRow = categories.find(({ categoryId }) => categoryId === selectedRowId);
-    if (selectedRow) handleOpenModal('edit', selectedRow);
-  };
-
-  const handleDelete = async () => {
+  const handleEdit = useCallback(() => {
     if (!selectedRowId) return;
-    await categoryService.remove(selectedRowId);
-    await fetchCategories();
-    setSelectedRowId(null);
-  };
+    handleOpenModal('edit', categories.data.find(c => c.categoryId === selectedRowId));
+  }, [selectedRowId, categories.data, handleOpenModal]);
 
-  const handleSubmit = async (e) => {
+  const handleDelete = useCallback(async () => {
+    if (!selectedRowId) return;
+
+    try {
+      await categoryService.remove(selectedRowId);
+      showSnackbar('Category deleted successfully');
+      refreshData();
+      setSelectedRowId(null);
+    } catch (error) {
+      showSnackbar('Error deleting category', 'error');
+    }
+  }, [selectedRowId]);
+
+  const handleCloseModal = useCallback(() => {
+    setIsModalOpen(false);
+    setSelectedRowId(null);
+    resetForm();
+  }, [resetForm]);
+
+  const handleInputChange = useCallback(({ target: { name, value } }) => {
+    setFormState(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }, []);
+
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
     try {
@@ -72,46 +114,44 @@ export const useCategoryManagement = () => {
 
       if (modalType === 'create') {
         await categoryService.create(formState);
-      } else {
+        showSnackbar('Category created successfully');
+      } else if (modalType === 'edit') {
         await categoryService.update(selectedRowId, formState);
+        showSnackbar('Category updated successfully');
       }
 
-      setIsModalOpen(false);
-      await fetchCategories();
+      refreshData();
+      handleCloseModal();
     } catch (err) {
       if (err.name === 'ValidationError') {
         const errors = {};
-        err.inner.forEach((validationError) => {
-          errors[validationError.path] = validationError.message;
+        err.inner.forEach(({ path, message }) => {
+          errors[path] = message;
         });
         setFormErrors(errors);
+      } else {
+        showSnackbar('Error saving category', 'error');
       }
     }
-  };
-
-  const handleInputChange = ({ target: { name, value } }) => {
-    setFormState((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-    setSelectedRowId(null);
-    resetForm();
-  };
+  }, [formState, modalType, selectedRowId, handleCloseModal]);
 
   return {
     categories,
-    selectedRowId,
-    setSelectedRowId,
-    formState,
-    handleInputChange,
     isModalOpen,
     modalType,
+    selectedRowId,
+    formState,
+    formErrors,
+    setSelectedRowId,
     handleCreate,
     handleEdit,
     handleDelete,
+    handleCloseModal,
+    handleInputChange,
     handleSubmit,
-    formErrors,
-    handleCloseModal
+    refreshData,
+    snackbar,
+    closeSnackbar,
+    pagination
   };
-};
+}

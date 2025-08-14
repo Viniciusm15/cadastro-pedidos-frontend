@@ -10,9 +10,10 @@ export default function GenericView({ title, items }) {
         </Typography>
       )}
       {items.map((item, index) => (
-        <Typography key={index} component='p' className={styles.detailItem}>
-          {item.label}: {item.value || 'Not provided'}
-        </Typography>
+        <div key={index} className={styles.detailItem}>
+          <Typography component='span'>{item.label}:</Typography>
+          {item.value || <Typography component='span'>Not provided</Typography>}
+        </div>
       ))}
     </article>
   );
