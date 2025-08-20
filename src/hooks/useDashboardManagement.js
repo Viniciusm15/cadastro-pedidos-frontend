@@ -7,7 +7,7 @@ export const useDashboardManagement = () => {
   const [salesData, setSalesData] = useState({ data: [], labels: [] });
   const [lowStockProducts, setLowStockProducts] = useState({ data: [], totalCount: 0 });
   const [pendingOrders, setPendingOrders] = useState({ data: [], totalCount: 0 });
-  const [customersData, setCustomersData] = useState({});
+  const [clientsData, setClientsData] = useState({});
 
   const [restockModal, setRestockModal] = useState({
     open: false,
@@ -33,22 +33,22 @@ export const useDashboardManagement = () => {
     try {
       const dashboardApi = dashboardService();
 
-      const [metricsData, salesData, lowStockData, ordersData, customersData] = await Promise.all([
+      const [metricsData, salesData, lowStockData, ordersData, clientsData] = await Promise.all([
         dashboardApi.getMetrics(),
         dashboardApi.getWeeklySales(),
         dashboardApi.getLowStockProducts(lowStockParams),
         dashboardApi.getPendingOrders(pendingOrdersParams),
-        dashboardApi.getCustomersData()
+        dashboardApi.getClientsData()
       ]);
 
       setMetrics(metricsData);
       setSalesData({
         data: salesData.map((item) => item.totalSales),
-        labels: salesData.map((item) => item.day)
+        labels: salesData.map((item) => item.dayOfWeek)
       });
       setLowStockProducts(lowStockData);
       setPendingOrders(ordersData);
-      setCustomersData(customersData);
+      setClientsData(clientsData);
     } catch (err) {
       showSnackbar('Failed to load dashboard data', 'error');
     }
@@ -122,7 +122,7 @@ export const useDashboardManagement = () => {
     salesData,
     lowStockProducts,
     pendingOrders,
-    customersData,
+    clientsData,
     refreshData,
     restockModal,
     openRestockModal,

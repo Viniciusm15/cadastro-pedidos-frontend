@@ -24,7 +24,7 @@ export default function Dashboard() {
     salesData,
     lowStockProducts,
     pendingOrders,
-    customersData,
+    clientsData,
     refreshData,
     restockModal,
     openRestockModal,
@@ -38,23 +38,23 @@ export default function Dashboard() {
   } = useDashboardManagement();
 
   const getLowStockColumns = () => [
-    { field: 'name', headerName: 'Product', width: '30%' },
+    { field: 'productName', headerName: 'Product', width: '30%' },
     {
-      field: 'stock',
+      field: 'stockQuantity',
       headerName: 'Stock',
       align: 'right',
       width: '20%',
       render: (row) => {
         return (
           <Chip
-            label={`${row.stock} units`}
+            label={`${row.stockQuantity} units`}
             color='error'
             size="small"
           />
         );
       },
     },
-    { field: 'category', headerName: 'Category', width: '30%' },
+    { field: 'categoryName', headerName: 'Category', width: '30%' },
     {
       field: 'actions',
       headerName: 'Actions',
@@ -64,7 +64,7 @@ export default function Dashboard() {
         <GenericActionButton
           icon={<ProductionQuantityLimits fontSize="small" />}
           tooltip="Restock product"
-          onClick={() => openRestockModal(row.id, row.name, row.stock)}
+          onClick={() => openRestockModal(row.id, row.name, row.stockQuantity)}
           color="primary"
         />
       )
@@ -74,7 +74,7 @@ export default function Dashboard() {
   const getPendingOrdersColumns = () => [
     { field: 'id', headerName: 'Order', width: '20%' },
     {
-      field: 'customer',
+      field: 'clientName',
       headerName: 'Customer',
       width: '30%',
       maxLength: 30,
@@ -93,7 +93,7 @@ export default function Dashboard() {
       render: (row) => <GenericStatusChip status={row.status} label={row.status} />
     }
   ];
-
+  
   return (
     <Box className="dashboard-container">
       <Grid container spacing={3} className="metrics-grid">
@@ -102,7 +102,7 @@ export default function Dashboard() {
             title="Sales"
             value={metrics?.totalSales}
             icon={<AttachMoney color="primary" />}
-            change={metrics?.salesChange}
+            change={metrics?.salesChangePercentage}
             isCurrency
           />
         </Grid>
@@ -125,9 +125,9 @@ export default function Dashboard() {
         <Grid item xs={12} sm={6} lg={3}>
           <GenericMetricCard
             title="Active Customers"
-            value={metrics?.activeCustomersCount}
+            value={metrics?.activeClientsCount}
             icon={<People color="success" />}
-            description={`+${metrics?.newCustomersThisMonth} this month`}
+            description={`+${metrics?.newClientsThisMonth} this month`}
           />
         </Grid>
       </Grid>
@@ -195,7 +195,7 @@ export default function Dashboard() {
         title="Monthly Customer Growth"
         type="bar"
         series={[{
-          data: customersData.monthlyData || [],
+          data: clientsData.monthlyData || [],
           label: 'New customers'
         }]}
         xAxis={[{

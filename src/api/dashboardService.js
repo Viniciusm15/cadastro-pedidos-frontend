@@ -47,9 +47,9 @@ export const dashboardService = () => {
         }
     };
 
-    const getCustomersData = async () => {
+    const getClientsData = async () => {
         try {
-            const response = await service.api.get('/customers-data');
+            const response = await service.api.get('/clients-data');
             return response.data;
         } catch (error) {
             throw error;
@@ -70,7 +70,7 @@ export const dashboardService = () => {
         getWeeklySales,
         getLowStockProducts,
         getPendingOrders,
-        getCustomersData,
+        getClientsData,
         restockProduct
     };
 };

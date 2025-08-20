@@ -11,7 +11,7 @@ import { OrderStatus, getStatusByDescription } from '@/enums/OrderStatus';
 const INITIAL_FORM_STATE = {
   clientId: null,
   orderDate: dayjs(),
-  status: OrderStatus.PENDING.value,
+  status: '',
   orderItems: [],
   totalValue: 0
 };
@@ -98,7 +98,7 @@ export function useOrderManagement() {
       setFormState({
         ...selectedOrder,
         orderDate: dayjs(selectedOrder.orderDate),
-        status: selectedOrder.status?.value || OrderStatus.PENDING.value,
+        status: selectedOrder.status || OrderStatus.PENDING.value,
         orderItems: selectedOrder.orderItems.map((item) => ({
           productId: item.productId,
           quantity: item.quantity,
