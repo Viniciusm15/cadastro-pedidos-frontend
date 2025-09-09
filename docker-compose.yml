@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cadastro-pedidos-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_BACK_END_URL=${NEXT_PUBLIC_BACK_END_URL}
+    volumes:
+      - .:/app
+      - /app/node_modules
+    restart: unless-stopped
