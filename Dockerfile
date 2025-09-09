@@ -18,6 +18,3 @@ EXPOSE 3000
 
 # Comando para rodar em modo desenvolvimento
 CMD ["npm", "run", "dev"]
-
-
-  git config --global user.name "Your Name"
