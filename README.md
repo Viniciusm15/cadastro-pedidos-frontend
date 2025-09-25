@@ -92,7 +92,7 @@ Crie um arquivo .env na raiz do projeto.
 
 ```bash
 # URL do backend
-NEXT_PUBLIC_BACK_END_URL=http://localhost:57162
+NEXT_PUBLIC_BACK_END_URL=https://localhost:5001 (use https para evitar problema de CORS)
 ```
 ---
 
@@ -146,15 +146,18 @@ CMD ["npm", "run", "dev"]
 ### 📝 Arquivo docker-compose.yml
 
 ```bash
-version: '3.8'
+version: "3.9"
 
 services:
   frontend:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: order-registration-web-application
     ports:
       - "3000:3000"
     environment:
-      - NEXT_PUBLIC_BACK_END_URL=http://backend:57162
+      - NEXT_PUBLIC_BACK_END_URL=${NEXT_PUBLIC_BACK_END_URL}
     volumes:
       - .:/app
       - /app/node_modules
