@@ -111,6 +111,9 @@ cd cadastro-pedidos-frontend
 
 # Execute o docker compose
 docker compose -f docker-compose.yml up --build
+
+# Rode a aplicação
+docker compose up
 ```
 
 ### 🔧 Configuração do Docker
