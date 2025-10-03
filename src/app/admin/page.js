@@ -93,7 +93,7 @@ export default function Dashboard() {
       render: (row) => <GenericStatusChip status={row.status} label={row.status} />
     }
   ];
-  
+
   return (
     <Box className="dashboard-container">
       <Grid container spacing={3} className="metrics-grid">
@@ -200,7 +200,7 @@ export default function Dashboard() {
         }]}
         xAxis={[{
           scaleType: 'band',
-          data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+          data: clientsData.monthlyLabels || [],
           label: 'Month'
         }]}
       />
