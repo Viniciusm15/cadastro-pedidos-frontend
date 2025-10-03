@@ -46,7 +46,10 @@ export function useProductManagement() {
   const loadData = useCallback(async () => {
     try {
       const [productsRes, categoriesRes] = await Promise.all([
-        fetchProducts(pagination.apiParams),
+        fetchProducts(
+          pagination.apiParams.pageNumber,
+          pagination.apiParams.pageSize
+        ),
         categoryService.fetchAll()
       ]);
 
@@ -58,7 +61,7 @@ export function useProductManagement() {
     } catch (error) {
       showSnackbar('Error loading products', 'error');
     }
-  }, [pagination.apiParams]);
+  }, [pagination.apiParams.pageNumber, pagination.apiParams.pageSize]);
 
   useEffect(() => {
     loadData();

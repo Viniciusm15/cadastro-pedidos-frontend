@@ -32,8 +32,6 @@ export function GenericDataTable({
     setSelectedRowId,
     rowIdField = 'id'
 }) {
-    const paginatedData = data.slice(page * rowsPerPage, (page + 1) * rowsPerPage);
-
     const handleRowClick = (row) => {
         const id = row[rowIdField];
         if (setSelectedRowId) {
@@ -97,8 +95,8 @@ export function GenericDataTable({
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {paginatedData.length > 0 ? (
-                            paginatedData.map((row) => (
+                        {data.length > 0 ? (
+                            data.map((row) => (
                                 <TableRow
                                     key={row[rowIdField]}
                                     className={`${styles.bodyRow} ${selectedRowId === row[rowIdField] ? styles.selected : ''}`}

@@ -42,7 +42,11 @@ export function useClientManagement() {
 
   const loadData = useCallback(async () => {
     try {
-      const clientsRes = await clientService.fetchAll(pagination.apiParams);
+      const clientsRes = await clientService.fetchAll(
+        pagination.apiParams.pageNumber,
+        pagination.apiParams.pageSize
+      );
+
       setClients({
         data: clientsRes.data,
         totalCount: clientsRes.totalCount
@@ -50,7 +54,7 @@ export function useClientManagement() {
     } catch (error) {
       showSnackbar('Error loading clients', 'error');
     }
-  }, [pagination.apiParams]);
+  }, [pagination.apiParams.pageNumber, pagination.apiParams.pageSize]);
 
   useEffect(() => {
     loadData();

@@ -65,7 +65,10 @@ export function useOrderManagement() {
       const [clientsRes, productsRes, ordersRes] = await Promise.all([
         clientService.fetchAll(),
         fetchProducts(),
-        fetchAll(pagination.apiParams)
+        fetchAll(
+          pagination.apiParams.pageNumber,
+          pagination.apiParams.pageSize
+        )
       ]);
 
       setClients(clientsRes?.data || []);
@@ -83,7 +86,7 @@ export function useOrderManagement() {
     } catch (error) {
       showSnackbar('Error loading data', 'error');
     }
-  }, [pagination.apiParams]);
+  }, [pagination.apiParams.pageNumber, pagination.apiParams.pageSize]);
 
   useEffect(() => {
     loadData();

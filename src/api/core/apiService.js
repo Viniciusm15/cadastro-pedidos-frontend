@@ -6,8 +6,12 @@ export const useApiService = (entityPath, options = {}) => {
   const fetchAll = async (pageNumber = 1, pageSize = 10) => {
     try {
       const response = await api.get('', {
-        params: { pageNumber, pageSize }
+        params: {
+          pageNumber: pageNumber,
+          pageSize: pageSize
+        }
       });
+
       const { items, totalCount } = response.data;
       return { data: items, totalCount };
     } catch (error) {

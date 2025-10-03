@@ -83,13 +83,13 @@ export default function Dashboard() {
       field: 'amount',
       headerName: 'Amount',
       align: 'right',
-      width: '20%',
+      width: '30%',
       render: (row) => `R$ ${row.amount.toLocaleString('pt-BR')}`
     },
     {
       field: 'status',
       headerName: 'Status',
-      width: '30%',
+      width: '20%',
       render: (row) => <GenericStatusChip status={row.status} label={row.status} />
     }
   ];

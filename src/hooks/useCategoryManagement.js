@@ -39,7 +39,11 @@ export function useCategoryManagement() {
 
   const loadData = useCallback(async () => {
     try {
-      const categoriesRes = await categoryService.fetchAll(pagination.apiParams);
+      const categoriesRes = await categoryService.fetchAll(
+        pagination.apiParams.pageNumber,
+        pagination.apiParams.pageSize
+      );
+
       setCategories({
         data: categoriesRes.data,
         totalCount: categoriesRes.totalCount
@@ -47,7 +51,7 @@ export function useCategoryManagement() {
     } catch (error) {
       showSnackbar('Error loading categories', 'error');
     }
-  }, [pagination.apiParams]);
+  }, [pagination.apiParams.pageNumber, pagination.apiParams.pageSize]);
 
   useEffect(() => {
     loadData();

@@ -1,30 +1,35 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 
-export const usePagination = (initialState = { page: 0, rowsPerPage: 10 }) => {
-    const [pagination, setPagination] = useState(initialState);
+export const usePagination = (initialPage = 0, initialRowsPerPage = 10) => {
+    const [pagination, setPagination] = useState({
+        page: initialPage,
+        rowsPerPage: initialRowsPerPage
+    });
 
-    const handlePageChange = (_, newPage) => setPagination(prev => ({
-        ...prev,
-        page: newPage
-    }));
+    const apiParams = {
+        pageNumber: pagination.page + 1,
+        pageSize: pagination.rowsPerPage
+    };
+
+    const handlePageChange = (event, newPage) => {
+        setPagination(prev => ({
+            ...prev,
+            page: newPage
+        }));
+    };
 
     const handleRowsPerPageChange = (event) => {
         const newRowsPerPage = parseInt(event.target.value, 10);
         setPagination({
-            rowsPerPage: newRowsPerPage,
-            page: 0
+            page: 0,
+            rowsPerPage: newRowsPerPage
         });
     };
 
-    const apiParams = useMemo(() => ({
-        pageNumber: pagination.page + 1,
-        pageSize: pagination.rowsPerPage
-    }), [pagination.page, pagination.rowsPerPage]);
-
     return {
         pagination,
+        apiParams,
         handlePageChange,
         handleRowsPerPageChange,
-        apiParams
     };
 };

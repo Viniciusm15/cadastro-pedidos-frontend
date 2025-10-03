@@ -4,7 +4,13 @@ const api = createApiClient('Product');
 
 export const fetchProducts = async (pageNumber = 1, pageSize = 10) => {
   try {
-    const response = await api.get('', { params: { pageNumber, pageSize } });
+    const response = await api.get('', {
+      params: {
+        pageNumber: pageNumber,
+        pageSize: pageSize
+      }
+    });
+
     const { items, totalCount } = response.data;
     return { data: items, totalCount };
   } catch (error) {
