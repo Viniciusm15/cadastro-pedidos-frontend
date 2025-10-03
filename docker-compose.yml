@@ -5,7 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: cadastro-pedidos-frontend
+    container_name: order-registration-web-application
     ports:
       - "3000:3000"
     environment:
