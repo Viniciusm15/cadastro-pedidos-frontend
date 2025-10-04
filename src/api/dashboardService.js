@@ -26,7 +26,10 @@ export const dashboardService = () => {
     const getLowStockProducts = async (pageNumber = 1, pageSize = 10) => {
         try {
             const response = await service.api.get('/low-stock-products', {
-                params: { pageNumber, pageSize }
+                params: {
+                    pageNumber: pageNumber,
+                    pageSize: pageSize
+                }
             });
             const { items, totalCount } = response.data;
             return { data: items, totalCount };
@@ -38,7 +41,10 @@ export const dashboardService = () => {
     const getPendingOrders = async (pageNumber = 1, pageSize = 10) => {
         try {
             const response = await service.api.get('/pending-orders', {
-                params: { pageNumber, pageSize }
+                params: {
+                    pageNumber: pageNumber,
+                    pageSize: pageSize
+                }
             });
             const { items, totalCount } = response.data;
             return { data: items, totalCount };

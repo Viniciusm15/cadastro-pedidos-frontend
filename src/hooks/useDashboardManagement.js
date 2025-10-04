@@ -36,8 +36,8 @@ export const useDashboardManagement = () => {
       const [metricsData, salesData, lowStockData, ordersData, clientsData] = await Promise.all([
         dashboardApi.getMetrics(),
         dashboardApi.getWeeklySales(),
-        dashboardApi.getLowStockProducts(lowStockParams),
-        dashboardApi.getPendingOrders(pendingOrdersParams),
+        dashboardApi.getLowStockProducts(lowStockParams.pageNumber, lowStockParams.pageSize),
+        dashboardApi.getPendingOrders(pendingOrdersParams.pageNumber, pendingOrdersParams.pageSize),
         dashboardApi.getClientsData()
       ]);
 
@@ -65,7 +65,6 @@ export const useDashboardManagement = () => {
     pendingOrdersPagination.pagination.page,
     pendingOrdersPagination.pagination.rowsPerPage
   ]);
-
 
   const refreshData = () => {
     fetchData({
