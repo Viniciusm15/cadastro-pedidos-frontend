@@ -64,7 +64,7 @@ export default function Dashboard() {
         <GenericActionButton
           icon={<ProductionQuantityLimits fontSize="small" />}
           tooltip="Restock product"
-          onClick={() => openRestockModal(row.id, row.name, row.stockQuantity)}
+          onClick={() => openRestockModal(row.id, row.productName, row.stockQuantity)}
           color="primary"
         />
       )
